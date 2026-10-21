@@ -5,6 +5,7 @@ The educational content of this repository is licensed under
 
 This covers:
 
+- `slides/` — the workshop deck, except the third-party material listed below
 - `workshop/` — facilitator guide and rehearsal checklist
 - the narrative fields of `data/scenarios/*.json` — titles, subtitles, learning
   objectives, interpretation prompts, and discussion prompts
@@ -12,6 +13,13 @@ This covers:
 - `docs/` — schema documentation and the archived platform reviews
 
 Source code is licensed separately under the MIT License; see `LICENSE`.
+
+## Third-party material in the slides
+
+The deck in `slides/` reproduces figures, quotations and article screenshots from published
+papers (each cited on its slide), the ASHG 2026 speaker template and its branding, and the
+institutional and funder logos on the closing slide. These are included for education, are
+not covered by CC BY 4.0, and remain under their owners' terms.
 
 ## Attribution
 

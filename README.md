@@ -4,6 +4,8 @@ Browser-based, no-code educational platform for the ASHG 2026 workshop **Modelin
 
 **Try it:** <https://heart-gen.github.io/modeling-choices-omics-ashg2026/> — all six modules, plus the [facilitator run sheet](https://heart-gen.github.io/modeling-choices-omics-ashg2026/#/facilitator) with timing cues and reveal notes.
 
+**Slides:** the deck as presented at the workshop, in [`slides/`](./slides/) ([PDF](./slides/ASHG2026-modeling-choices.pdf) · [PowerPoint](./slides/ASHG2026-modeling-choices.pptx)).
+
 The platform is a guided decision lab. Participants explore synthetic, precomputed genomics and multi-omics scenarios through controls, visualizations, interpretation prompts, and facilitator-led discussion. It does not require accounts, data upload, local installation, command-line use, or live statistical computation during the workshop.
 
 ## Quick Start
@@ -42,7 +44,8 @@ data/figures-backup/   exported module figures for a network-failure fallback
 backend/polling/       optional aggregate-only polling service (local + Lambda)
 deploy/                CloudFormation stack and deployment runbook
 docs/                  data schema; docs/archive/ holds the build-time reviews (abstract, deck)
-workshop/              facilitator guide, rehearsal checklist, generated projector slides
+slides/                the workshop deck as presented (PDF and PowerPoint)
+workshop/              facilitator guide, rehearsal checklist, slide build tooling
 tests/                 cross-project load testing
 ```
 
@@ -93,8 +96,9 @@ the answers.
 
 Source code is MIT (`LICENSE`). Workshop content — the facilitator guide, scenario
 narratives, and exported figures — is CC BY 4.0 (`LICENSE-CONTENT.md`), so other educators
-can reuse and adapt the teaching material with attribution. See `CITATION.cff` for how to
-cite the platform.
+can reuse and adapt the teaching material with attribution. Third-party figures and
+branding in the slides are excluded; see [`slides/README.md`](./slides/README.md). See
+`CITATION.cff` for how to cite the platform.
 
 ## Contributing
 
