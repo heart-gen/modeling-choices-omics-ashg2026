@@ -1,7 +1,7 @@
 {
   "name": "omics-modeling-choices-platform",
   "private": true,
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Browser-based no-code educational platform for the ASHG 2026 Modeling Choices in Omics workshop.",
   "type": "module",
   "workspaces": [
