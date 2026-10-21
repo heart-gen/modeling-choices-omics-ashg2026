@@ -19,6 +19,8 @@ npm run build:deck                                           # re-lay out only; 
 `export:slides` validates the bundles, captures the charts into `captures/`, writes the slide
 content to `platform-slides.json`, and runs `build:deck`. That step (`build_deck.py`, run with
 `uv` and python-pptx) writes `ASHG2026-modeling-choices.pptx`. Everything here is gitignored.
+The deck as presented at the workshop is published in [`slides/`](../../slides/) at the
+repository root.
 
 The export fails if a chart named in the capture config no longer matches exactly one chart
 card, if the facilitator guide's two-hour table disagrees with the bundles on module minutes,
