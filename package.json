@@ -1,0 +1,41 @@
+{
+  "name": "omics-modeling-choices-platform",
+  "private": true,
+  "version": "2.0.0",
+  "description": "Browser-based no-code educational platform for the ASHG 2026 Modeling Choices in Omics workshop.",
+  "type": "module",
+  "workspaces": [
+    "apps/web"
+  ],
+  "scripts": {
+    "dev": "npm --workspace apps/web run dev",
+    "build": "npm --workspace apps/web run build",
+    "preview": "npm --workspace apps/web run preview",
+    "test": "npm --workspace apps/web run test",
+    "test:e2e": "npm --workspace apps/web run test:e2e",
+    "test:e2e:install": "npm --workspace apps/web run test:e2e:install",
+    "polling:dev": "node backend/polling/server.mjs",
+    "polling:reset": "node scripts/reset-poll.mjs",
+    "test:polling-load": "node tests/polling-load.mjs",
+    "export:figures": "node apps/web/scripts/export-backup-figures.mjs",
+    "export:slides": "node scripts/validate-scenarios.mjs && node apps/web/scripts/export-slides.mjs",
+    "build:deck": "uv run --no-project --with python-pptx==1.0.2 --with pillow==12.0.0 --with segno==1.6.6 python3 workshop/slides/build_deck.py",
+    "audit:controls": "node apps/web/scripts/audit-controls.mjs",
+    "validate:data": "node scripts/validate-scenarios.mjs",
+    "sync:data": "node scripts/sync-data.mjs",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.700.0",
+    "@aws-sdk/lib-dynamodb": "^3.700.0"
+  },
+  "devDependencies": {
+    "eslint": "^9.39.5",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "globals": "^17.9.0",
+    "typescript-eslint": "^8.66.0"
+  },
+  "engines": {
+    "node": ">=22.12"
+  }
+}

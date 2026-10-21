@@ -1,0 +1,967 @@
+:root {
+  color-scheme: light;
+  font-family:
+    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #f7f8fb;
+  color: #172033;
+  --ink: #172033;
+  --muted: #5c667a;
+  --panel: #ffffff;
+  --panel-alt: #eef4ff;
+  --line: #d9e1ef;
+  --focus: #0f62fe;
+  --primary: #1d4ed8;
+  --primary-dark: #1e3a8a;
+  --green: #047857;
+  --amber: #92400e;
+  --shadow: 0 10px 30px rgba(25, 38, 64, 0.08);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+a {
+  color: inherit;
+}
+
+button,
+select,
+textarea,
+input {
+  font: inherit;
+}
+
+button:focus-visible,
+a:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+input:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
+}
+
+.skip-link {
+  position: absolute;
+  left: 1rem;
+  top: -4rem;
+  z-index: 10;
+  background: var(--ink);
+  color: #fff;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+}
+
+.skip-link:focus {
+  top: 1rem;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+}
+
+.top-nav {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.85rem clamp(1rem, 4vw, 3rem);
+  background: rgba(255, 255, 255, 0.94);
+  border-bottom: 1px solid var(--line);
+  backdrop-filter: blur(12px);
+}
+
+.brand {
+  font-weight: 800;
+  text-decoration: none;
+  color: var(--primary-dark);
+}
+
+.top-nav nav {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.top-nav nav a {
+  padding: 0.45rem 0.7rem;
+  border-radius: 0.45rem;
+  text-decoration: none;
+  color: var(--muted);
+}
+
+.top-nav nav a:hover {
+  background: #eef4ff;
+  color: var(--ink);
+}
+
+.page-shell {
+  width: min(1360px, 100%);
+  margin: 0 auto;
+  padding: clamp(1rem, 3vw, 2.5rem);
+}
+
+.landing-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.8fr);
+  gap: clamp(1rem, 3vw, 2rem);
+  align-items: stretch;
+}
+
+.intro-panel,
+.lab-panel,
+.status-panel,
+.control-panel,
+.chart-card,
+.side-card,
+.scenario-card,
+.facilitator-card,
+.run-sheet-summary,
+.provenance-panel,
+.login-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 0.5rem;
+  box-shadow: var(--shadow);
+}
+
+.intro-panel,
+.lab-panel,
+.status-panel {
+  padding: clamp(1.25rem, 4vw, 3rem);
+}
+
+.intro-panel h1 {
+  max-width: 11ch;
+  margin: 0;
+  font-size: clamp(2.25rem, 6vw, 4.7rem);
+  line-height: 0.95;
+  letter-spacing: 0;
+}
+
+.lede {
+  max-width: 64ch;
+  color: var(--muted);
+  font-size: 1.15rem;
+  line-height: 1.7;
+}
+
+.eyebrow {
+  margin: 0 0 0.55rem;
+  color: var(--primary);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.action-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.75rem;
+  padding: 0.7rem 1rem;
+  border: 1px solid transparent;
+  border-radius: 0.45rem;
+  cursor: pointer;
+  text-decoration: none;
+  font-weight: 750;
+}
+
+.button.primary {
+  color: #fff;
+  background: var(--primary);
+}
+
+.button.secondary {
+  color: var(--primary-dark);
+  background: #eef4ff;
+  border-color: #c8d8ff;
+}
+
+.button.full-width {
+  width: 100%;
+}
+
+.button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.lab-panel h2,
+.section-heading h1,
+.scenario-card h2,
+.chart-heading h2,
+.side-card h2,
+.facilitator-card h2,
+.control-panel h2 {
+  margin: 0;
+}
+
+.lab-panel ul {
+  margin: 1rem 0 0;
+  padding-left: 1.2rem;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.metric-strip,
+.run-sheet-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.metric-strip span,
+.run-sheet-summary span {
+  display: grid;
+  gap: 0.25rem;
+  padding: 0.9rem;
+  background: #f8fafc;
+  border: 1px solid var(--line);
+  border-radius: 0.45rem;
+  color: var(--muted);
+}
+
+.metric-strip strong,
+.run-sheet-summary strong {
+  color: var(--ink);
+  font-size: 1.25rem;
+}
+
+.poll-panel {
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--line);
+}
+
+.poll-url {
+  margin: 0.6rem 0 0;
+  font-weight: 600;
+  word-break: break-all;
+}
+
+.poll-hint {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.poll-panel fieldset {
+  display: grid;
+  gap: 0.6rem;
+  margin: 0 0 1rem;
+  padding: 0;
+  border: 0;
+}
+
+.poll-option {
+  display: flex;
+  gap: 0.55rem;
+  align-items: flex-start;
+  color: var(--muted);
+}
+
+.section-heading {
+  max-width: 820px;
+  margin-bottom: 1.4rem;
+}
+
+.section-heading.compact {
+  margin-bottom: 1rem;
+}
+
+.section-heading.compact h1 {
+  font-size: clamp(1.6rem, 2.8vw, 2.3rem);
+}
+
+.section-heading h1 {
+  font-size: clamp(2rem, 4vw, 3rem);
+  letter-spacing: 0;
+}
+
+.section-heading p {
+  color: var(--muted);
+  line-height: 1.65;
+}
+
+.scenario-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1rem;
+}
+
+.scenario-card {
+  position: relative;
+  display: grid;
+  gap: 0.7rem;
+  min-height: 220px;
+  padding: 1.15rem;
+  text-decoration: none;
+  transition:
+    transform 160ms ease,
+    border-color 160ms ease;
+}
+
+.scenario-card:hover {
+  transform: translateY(-2px);
+  border-color: #a8c0ff;
+}
+
+.card-index,
+.card-meta,
+.visited {
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.visited {
+  position: absolute;
+  right: 1rem;
+  top: 1rem;
+  color: var(--green);
+}
+
+.scenario-card p {
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.scenario-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(300px, 380px);
+  gap: 1rem;
+  align-items: start;
+}
+
+.scenario-main {
+  min-width: 0;
+}
+
+.scenario-side {
+  position: sticky;
+  top: 5rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.back-link {
+  display: inline-flex;
+  margin-bottom: 1rem;
+  color: var(--primary-dark);
+  font-weight: 750;
+  text-decoration: none;
+}
+
+.objective-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.objective-list li {
+  padding: 0.5rem 0.65rem;
+  border: 1px solid #cfe0ff;
+  border-radius: 999px;
+  background: #f6f9ff;
+  color: #25426f;
+  font-size: 0.88rem;
+}
+
+/* Single column: the heading sits on one line above the controls, so the controls get the
+   panel's full width and the panels they redraw stay within the first screen. */
+.control-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.75rem;
+  align-items: start;
+  padding: 0.9rem 1rem;
+  margin-bottom: 1rem;
+}
+
+.control-panel > div:first-child {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+}
+
+.control-panel > div:first-child h2 {
+  margin: 0;
+  font-size: 1.15rem;
+}
+
+.control-panel > div:first-child .eyebrow {
+  margin: 0;
+}
+
+.control-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.8rem;
+}
+
+.field {
+  display: grid;
+  gap: 0.55rem;
+  color: var(--muted);
+  font-weight: 650;
+}
+
+.field select,
+.field input[type="range"],
+textarea {
+  width: 100%;
+}
+
+.field select,
+textarea {
+  border: 1px solid var(--line);
+  border-radius: 0.45rem;
+  background: #fff;
+  color: var(--ink);
+  padding: 0.7rem;
+}
+
+.field input[type="range"] {
+  accent-color: var(--primary);
+}
+
+.toggle-field {
+  grid-template-columns: 1fr auto;
+  align-items: center;
+}
+
+.chart-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.chart-card {
+  min-width: 0;
+  overflow: hidden;
+}
+
+/*
+ * The association summary is a table, not a plot: at half the grid width its p-value
+ * column fell outside the visible area and had to be scrolled to. That column is the
+ * point of the complexity module, where the same estimate is significant under one
+ * adjustment and not under another, so it spans the full row instead.
+ */
+.chart-card.association-summary {
+  grid-column: 1 / -1;
+}
+
+.chart-heading {
+  padding: 1rem 1rem 0;
+}
+
+.chart-heading p {
+  margin: 0.45rem 0 0;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.chart-surface {
+  width: 100%;
+  height: 340px;
+}
+
+.table-wrap {
+  overflow-x: auto;
+  padding: 1rem;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 460px;
+}
+
+th,
+td {
+  padding: 0.7rem;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+}
+
+th {
+  color: #42506a;
+  font-size: 0.85rem;
+}
+
+.side-card {
+  padding: 1rem;
+}
+
+.side-card p,
+.side-card li {
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.side-card.emphasis {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+}
+
+.side-card.emphasis h2 {
+  color: #065f46;
+}
+
+.side-card ul {
+  margin: 0.75rem 0 0;
+  padding-left: 1.1rem;
+}
+
+.prediction-reveal {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+}
+
+.prediction-reveal h3 {
+  margin: 0;
+}
+
+.prediction-verdict {
+  margin: 0.5rem 0 0;
+  color: var(--ink);
+}
+
+.prediction-room {
+  list-style: none;
+  margin: 0.5rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.prediction-room li {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.4rem 0.55rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font-size: 0.9rem;
+}
+
+.prediction-room li.is-correct {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+  color: #065f46;
+  font-weight: 600;
+}
+
+.hint {
+  margin: 0.6rem 0 0;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.preset-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.chip {
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--ink);
+  border-radius: 999px;
+  padding: 0.35rem 0.8rem;
+  font: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.chip:hover {
+  border-color: var(--primary);
+}
+
+.chip.is-active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #ffffff;
+}
+
+.control-panel.is-locked p,
+.locked-results .chart-heading p {
+  color: var(--muted);
+}
+
+.locked-results {
+  display: grid;
+  place-items: center;
+  min-height: 160px;
+  border-style: dashed;
+  text-align: center;
+}
+
+.room-vs-reality {
+  display: grid;
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+textarea {
+  min-height: 120px;
+  resize: vertical;
+  margin-bottom: 0.75rem;
+}
+
+.login-shell {
+  min-height: 70vh;
+  display: grid;
+  place-items: center;
+}
+
+.login-card {
+  width: min(100%, 440px);
+  display: grid;
+  gap: 1rem;
+  padding: clamp(1.25rem, 4vw, 2rem);
+}
+
+.login-card h1 {
+  margin: 0;
+  font-size: 2rem;
+}
+
+.login-card p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.field input[type="text"],
+.field input[type="password"],
+.field input:not([type]) {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 0.45rem;
+  background: #fff;
+  color: var(--ink);
+  padding: 0.7rem;
+}
+
+.form-error {
+  color: #991b1b;
+  font-weight: 750;
+}
+
+.facilitator-list {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.facilitator-card {
+  display: grid;
+  grid-template-columns: minmax(240px, 1fr) repeat(3, minmax(180px, 0.75fr)) auto;
+  gap: 1rem;
+  align-items: start;
+  padding: 1rem;
+}
+
+.facilitator-card h3 {
+  margin: 0 0 0.35rem;
+  font-size: 0.95rem;
+}
+
+.facilitator-card p {
+  margin: 0.35rem 0 0;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.status-panel {
+  max-width: 720px;
+}
+
+.variant-chip {
+  background: var(--panel-alt);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--primary-dark);
+  font-variant-numeric: tabular-nums;
+  margin-left: 0.6rem;
+  padding: 0.15rem 0.6rem;
+}
+
+.provenance-panel {
+  margin-top: 1.5rem;
+  padding: 0;
+}
+
+.provenance-panel > summary {
+  align-items: center;
+  cursor: pointer;
+  display: flex;
+  font-weight: 600;
+  gap: 0.75rem;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+}
+
+.provenance-panel > summary:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+
+.provenance-seed {
+  color: var(--muted);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.85rem;
+  font-weight: 400;
+}
+
+.provenance-body {
+  border-top: 1px solid var(--line);
+  display: grid;
+  gap: 1.25rem;
+  padding: 1.25rem;
+}
+
+.provenance-body h3 {
+  font-size: 0.95rem;
+  margin: 0 0 0.5rem;
+}
+
+.provenance-body p,
+.provenance-body li {
+  color: var(--muted);
+  line-height: 1.6;
+  margin: 0.35rem 0;
+}
+
+.provenance-body ul {
+  margin: 0;
+  padding-left: 1.1rem;
+}
+
+.provenance-facts {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  margin: 0;
+}
+
+.provenance-facts dt {
+  color: var(--muted);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+}
+
+.provenance-facts dd {
+  margin: 0.15rem 0 0;
+}
+
+.provenance-generator {
+  border-top: 1px dashed var(--line);
+  padding-top: 0.75rem;
+}
+
+.poll-results {
+  margin-bottom: 1.5rem;
+}
+
+/* The join link is projected, so it has to be legible from the back of the room. */
+.external-poll-url {
+  margin: 0.75rem 0;
+  font-size: clamp(1.5rem, 4vw, 2.75rem);
+  font-weight: 700;
+  line-height: 1.15;
+  word-break: break-all;
+}
+
+.external-poll-steps {
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+@media (max-width: 1050px) {
+  .landing-grid,
+  .scenario-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .scenario-side {
+    position: static;
+  }
+
+  .facilitator-card {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  .top-nav {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .control-panel,
+  .chart-grid,
+  .metric-strip,
+  .run-sheet-summary,
+  .facilitator-card {
+    grid-template-columns: 1fr;
+  }
+
+  .intro-panel h1 {
+    font-size: 2.35rem;
+  }
+
+  .chart-surface {
+    height: 300px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Opening poll page: the question is the only thing on screen while the room answers. */
+.opening-poll {
+  max-width: 760px;
+}
+
+.opening-poll .poll-panel {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
+}
+
+.opening-poll legend {
+  margin-bottom: 0.75rem;
+  padding: 0;
+}
+
+.opening-poll legend h2 {
+  margin: 0;
+  font-size: clamp(1.25rem, 2.4vw, 1.6rem);
+}
+
+.opening-poll .poll-option {
+  padding: 0.7rem 0.9rem;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  color: var(--ink);
+  font-size: 1.05rem;
+}
+
+.opening-poll .action-row {
+  margin-top: 1.5rem;
+}
+
+/* Fixed inputs inside the decision box: a premise, not a result, so it is one line. */
+.fixed-inputs {
+  margin-top: 0.4rem;
+  padding-top: 0.7rem;
+  border-top: 1px solid var(--line);
+}
+
+.fixed-inputs .eyebrow {
+  margin: 0 0 0.45rem;
+}
+
+.fixed-variant {
+  color: var(--muted);
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.fixed-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.4rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.9rem;
+}
+
+.fixed-strip li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.fixed-strip .swatch {
+  display: inline-block;
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: 50%;
+}
+
+.fixed-group {
+  font-weight: 600;
+}
+
+.fixed-value {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.fixed-value abbr {
+  text-decoration: none;
+}
+
+/* Information block: prose under the charts, same card as a chart so it reads as part of
+   the module rather than as a footnote. */
+.info-card {
+  margin-bottom: 1rem;
+}
+
+.info-card p {
+  margin: 0 0 0.7rem;
+  color: var(--muted);
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+.info-card p:last-child {
+  margin-bottom: 0;
+}

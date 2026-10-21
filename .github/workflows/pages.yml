@@ -1,0 +1,115 @@
+name: Pages
+
+# The open-access copy of the static decision lab, rebuilt from main so the public URL always
+# matches HEAD. It was the contingency deployment during the workshop (deploy/README.md).
+#
+# This touches no AWS resource. The live-session deployment stays tag-driven in deploy.yml,
+# and builds with a different base path, a polling backend and the facilitator gate.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Unlike the AWS deploy, superseding an in-flight run is what we want: only the newest
+# commit on main is worth publishing.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      # The same gates deploy.yml runs. Never publish a build that has not passed them.
+      - run: npm run lint
+      - run: npm run validate:data
+      - run: npm run test
+
+      - name: Configure Pages
+        id: pages
+        uses: actions/configure-pages@v6
+
+      - name: Build the static site for the project sub-path
+        env:
+          # base_path arrives without a trailing slash ("/my-repo"). vite.config.ts
+          # normalises it, because BASE_URL is consumed as a bare prefix.
+          VITE_BASE_PATH: ${{ steps.pages.outputs.base_path }}
+          # Deliberately no VITE_FACILITATOR_*: the open-access build publishes the run sheet
+          # and reveal notes, so the facilitator view is open.
+          # Deliberately no VITE_POLLING_API_URL: there is no backend behind Pages, so the
+          # opening poll resolves to the external tool.
+          VITE_EXTERNAL_POLL_URL: ${{ vars.EXTERNAL_POLL_URL }}
+          VITE_EXTERNAL_POLL_QUESTION: ${{ vars.EXTERNAL_POLL_QUESTION }}
+          VITE_EXTERNAL_POLL_RESULTS_URL: ${{ vars.EXTERNAL_POLL_RESULTS_URL }}
+          VITE_EXTERNAL_POLL_LABEL: ${{ vars.EXTERNAL_POLL_LABEL }}
+        run: |
+          # Not an error: an unavailable poll is a valid state, and every module still works.
+          test -n "$VITE_EXTERNAL_POLL_URL" || echo "::warning::EXTERNAL_POLL_URL variable is unset; the opening poll will render as unavailable."
+          npm run build
+
+      # The trailing-slash bug in BASE_URL exits zero and only fails at runtime, because
+      # Vite still emits correct asset URLs from an unnormalised base. `normalizeBase` is
+      # pinned directly by src/basePath.test.ts — that is the real guard. These two are the
+      # cheap artifact-level checks worth keeping alongside it: assets actually carrying
+      # the base, and scenario data actually present (apps/web/public/data is gitignored
+      # and only materialised by the prebuild step).
+      - name: Check the built artifact
+        env:
+          BASE_PATH: ${{ steps.pages.outputs.base_path }}
+        run: |
+          set -euo pipefail
+          grep -q "\"$BASE_PATH/assets/" apps/web/dist/index.html \
+            || { echo "::error::index.html asset URLs do not carry the Pages base path."; exit 1; }
+          test -f apps/web/dist/data/scenarios/index.json \
+            || { echo "::error::scenario bundles are missing from the build; the site would load no modules."; exit 1; }
+
+      # Pages has no rewrite rules and serves 404.html for unknown paths, which is how the
+      # <base>/facilitator pathname survives a refresh or a typed URL — the equivalent of
+      # the CloudFront custom error response on the primary deployment. Pages returns it
+      # with a 404 status, so never assert on the status code, only the body.
+      - name: Add the SPA fallback
+        run: cp apps/web/dist/index.html apps/web/dist/404.html
+
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: apps/web/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5
+
+      # No curl smoke check, unlike deploy.yml: there is no API behind Pages to exercise.
+      # Verification is the browser walk in workshop/rehearsal-checklist.md.
+      - name: Summarise
+        run: |
+          {
+            echo "### Pages deployed"
+            echo ""
+            echo "- Participants: ${{ steps.deployment.outputs.page_url }}"
+            echo "- Facilitator: ${{ steps.deployment.outputs.page_url }}#/facilitator"
+            echo "- Commit: \`${{ github.sha }}\`"
+            echo ""
+            echo "The in-platform poll is not deployed here; the opening poll points at the"
+            echo "external poll tool if one is configured, and reports itself unavailable otherwise."
+          } >> "$GITHUB_STEP_SUMMARY"

@@ -1,0 +1,50 @@
+{
+  "schemaVersion": "0.2.0",
+  "generatedBy": "analysis/generate_scenarios.py",
+  "generatorVersion": "1.1.0",
+  "seed": 20260721,
+  "scenarios": [
+    {
+      "id": "pooled-vs-stratified",
+      "file": "pooled-vs-stratified.json",
+      "title": "Pooled vs Stratified Analysis",
+      "subtitle": "Power, precision, and hidden heterogeneity",
+      "estimatedMinutes": 10
+    },
+    {
+      "id": "within-vs-meta",
+      "file": "within-vs-meta.json",
+      "title": "Within-Ancestry Testing vs Meta-Analysis",
+      "subtitle": "A significant summary is not the same biology everywhere",
+      "estimatedMinutes": 10
+    },
+    {
+      "id": "global-vs-local-ancestry",
+      "file": "global-vs-local-ancestry.json",
+      "title": "Global vs Local Ancestry Modeling",
+      "subtitle": "When locus-specific ancestry changes the story, and when it does not",
+      "estimatedMinutes": 10
+    },
+    {
+      "id": "complexity-power",
+      "file": "complexity-power.json",
+      "title": "Local Ancestry and Model Complexity",
+      "subtitle": "When the extra parameters only cost power",
+      "estimatedMinutes": 10
+    },
+    {
+      "id": "regularization-heterogeneity",
+      "file": "regularization-heterogeneity.json",
+      "title": "Polygenic Scores Across Ancestries",
+      "subtitle": "The headline metric is not the whole story",
+      "estimatedMinutes": 10
+    },
+    {
+      "id": "scalability-equity",
+      "file": "scalability-equity.json",
+      "title": "Scalable Inference and Who Can Afford It",
+      "subtitle": "The ancestry-aware analyses are the expensive ones",
+      "estimatedMinutes": 10
+    }
+  ]
+}

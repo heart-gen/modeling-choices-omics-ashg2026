@@ -1,0 +1,380 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >
+  ASHG 2026 "Modeling Choices in Omics" workshop platform: a private S3 origin behind
+  CloudFront for the static decision lab, plus an aggregate-only polling API on Lambda +
+  DynamoDB served same-origin under /api/*.
+
+  Deployed into a Northwestern-owned AWS account provisioned through the NUIT Public Cloud
+  Account Request. Authenticate with IAM Identity Center before running:
+    aws sso login --profile ashg2026
+
+Parameters:
+  ProjectName:
+    Type: String
+    Default: ashg2026-omics-workshop
+    Description: Prefix for resource names.
+
+  FacilitatorBasicAuth:
+    Type: String
+    NoEcho: true
+    Description: >
+      'Basic ' + base64(username:password) for the edge check on /facilitator. This is a
+      convenience gate, not a security boundary; the workshop content is not sensitive.
+
+  GitHubRepository:
+    Type: String
+    Description: owner/repo permitted to assume the deploy role via OIDC. No default, so a fork names its own.
+
+  GitHubRepositoryImmutableId:
+    Type: String
+    Description: >
+      The same repo in GitHub's immutable OIDC subject form, owner@orgId/repo@repoId. An
+      organisation with immutable subjects enabled issues a `sub` claim in this form, which
+      never matches a `repo:owner/repo:*` pattern, and the deploy fails at role assumption
+      with a bare "Not authorized to perform sts:AssumeRoleWithWebIdentity". Both forms are
+      trusted below so the role works either way. Read the ids from
+      `gh api orgs/<org> --jq .id` and `gh api repos/<owner>/<repo> --jq .id`.
+
+  CreateGitHubOidcProvider:
+    Type: String
+    AllowedValues: ["true", "false"]
+    Default: "true"
+    Description: >
+      Set false if NUIT CloudOps already created the GitHub OIDC provider in this account,
+      or if the account's permission set does not allow creating IAM identity providers.
+      Confirm with awscloudops@northwestern.edu before the first deploy.
+
+  CreateDeployRole:
+    Type: String
+    AllowedValues: ["true", "false"]
+    Default: "true"
+    Description: Set false to consume a deploy role NUIT created instead.
+
+Conditions:
+  ShouldCreateOidcProvider: !Equals [!Ref CreateGitHubOidcProvider, "true"]
+  ShouldCreateDeployRole: !Equals [!Ref CreateDeployRole, "true"]
+
+Resources:
+  # ---------------------------------------------------------------- static site origin
+  SiteBucket:
+    Type: AWS::S3::Bucket
+    # Retained so a stack mistake during conference week cannot delete the deployed build.
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      BucketName: !Sub "${ProjectName}-site-${AWS::AccountId}"
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      VersioningConfiguration:
+        Status: Enabled
+
+  SiteBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref SiteBucket
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Sid: AllowCloudFrontOacRead
+            Effect: Allow
+            Principal:
+              Service: cloudfront.amazonaws.com
+            Action: s3:GetObject
+            Resource: !Sub "${SiteBucket.Arn}/*"
+            Condition:
+              StringEquals:
+                AWS:SourceArn: !Sub "arn:aws:cloudfront::${AWS::AccountId}:distribution/${SiteDistribution}"
+
+  # ------------------------------------------------------------------- polling backend
+  PollTable:
+    Type: AWS::DynamoDB::Table
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      TableName: !Sub "${ProjectName}-poll"
+      # One item per (poll, option). Votes are a single atomic ADD, so a burst of 150
+      # simultaneous responses cannot lose counts to read-modify-write races.
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: pollId
+          AttributeType: S
+        - AttributeName: optionId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: pollId
+          KeyType: HASH
+        - AttributeName: optionId
+          KeyType: RANGE
+
+  PollFunctionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: poll-table-access
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:Query
+                  - dynamodb:UpdateItem
+                Resource: !GetAtt PollTable.Arn
+
+  PollFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub "${ProjectName}-poll-api"
+      Runtime: nodejs22.x
+      Handler: lambda.handler
+      Role: !GetAtt PollFunctionRole.Arn
+      Timeout: 10
+      MemorySize: 256
+      Environment:
+        Variables:
+          POLLING_TABLE_NAME: !Ref PollTable
+      Code:
+        # Placeholder only. The deploy workflow ships the real bundle with
+        # `aws lambda update-function-code`; CloudFormation never carries application code.
+        ZipFile: |
+          export const handler = async () => ({
+            statusCode: 503,
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({ error: "Poll API not yet deployed" })
+          });
+
+  PollFunctionUrl:
+    Type: AWS::Lambda::Url
+    Properties:
+      TargetFunctionArn: !GetAtt PollFunction.Arn
+      # Signed by CloudFront's OAC, so the Function URL is not directly callable.
+      AuthType: AWS_IAM
+
+  PollFunctionUrlPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !GetAtt PollFunction.Arn
+      Action: lambda:InvokeFunctionUrl
+      Principal: cloudfront.amazonaws.com
+      FunctionUrlAuthType: AWS_IAM
+      SourceArn: !Sub "arn:aws:cloudfront::${AWS::AccountId}:distribution/${SiteDistribution}"
+
+  # OAC needs lambda:InvokeFunction as well as lambda:InvokeFunctionUrl. With only the
+  # permission above, every /api/* request through the distribution is a 403.
+  PollFunctionInvokePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !GetAtt PollFunction.Arn
+      Action: lambda:InvokeFunction
+      Principal: cloudfront.amazonaws.com
+      SourceArn: !Sub "arn:aws:cloudfront::${AWS::AccountId}:distribution/${SiteDistribution}"
+
+  # ------------------------------------------------------------------------ CloudFront
+  SiteOriginAccessControl:
+    Type: AWS::CloudFront::OriginAccessControl
+    Properties:
+      OriginAccessControlConfig:
+        Name: !Sub "${ProjectName}-s3-oac"
+        OriginAccessControlOriginType: s3
+        SigningBehavior: always
+        SigningProtocol: sigv4
+
+  PollOriginAccessControl:
+    Type: AWS::CloudFront::OriginAccessControl
+    Properties:
+      OriginAccessControlConfig:
+        Name: !Sub "${ProjectName}-lambda-oac"
+        OriginAccessControlOriginType: lambda
+        SigningBehavior: always
+        SigningProtocol: sigv4
+
+  FacilitatorAuthFunction:
+    Type: AWS::CloudFront::Function
+    Properties:
+      Name: !Sub "${ProjectName}-facilitator-auth"
+      AutoPublish: true
+      FunctionConfig:
+        Comment: Basic auth for the /facilitator entry point.
+        Runtime: cloudfront-js-2.0
+      # Kept in sync with deploy/infra/facilitator-auth.js; the deploy README documents
+      # regenerating this block when that file changes.
+      FunctionCode: !Sub |
+        var EXPECTED_AUTH = '${FacilitatorBasicAuth}';
+
+        function handler(event) {
+          var request = event.request;
+
+          if (!request.uri.startsWith('/facilitator')) {
+            return request;
+          }
+
+          var header = request.headers.authorization;
+          if (header && header.value === EXPECTED_AUTH) {
+            request.uri = '/index.html';
+            return request;
+          }
+
+          return {
+            statusCode: 401,
+            statusDescription: 'Unauthorized',
+            headers: {
+              'www-authenticate': { value: 'Basic realm="Facilitator"' },
+              'cache-control': { value: 'no-store' }
+            }
+          };
+        }
+
+  SiteDistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Enabled: true
+        Comment: !Sub "${ProjectName} workshop platform"
+        DefaultRootObject: index.html
+        HttpVersion: http2and3
+        PriceClass: PriceClass_100
+        Origins:
+          - Id: site-s3
+            DomainName: !GetAtt SiteBucket.RegionalDomainName
+            OriginAccessControlId: !GetAtt SiteOriginAccessControl.Id
+            S3OriginConfig: {}
+          - Id: poll-lambda
+            DomainName: !Select [2, !Split ["/", !GetAtt PollFunctionUrl.FunctionUrl]]
+            OriginAccessControlId: !GetAtt PollOriginAccessControl.Id
+            CustomOriginConfig:
+              OriginProtocolPolicy: https-only
+              OriginSSLProtocols: [TLSv1.2]
+        DefaultCacheBehavior:
+          TargetOriginId: site-s3
+          ViewerProtocolPolicy: redirect-to-https
+          Compress: true
+          AllowedMethods: [GET, HEAD, OPTIONS]
+          # Managed-CachingOptimized
+          CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6
+          FunctionAssociations:
+            - EventType: viewer-request
+              FunctionARN: !GetAtt FacilitatorAuthFunction.FunctionMetadata.FunctionARN
+        CacheBehaviors:
+          - PathPattern: /api/*
+            TargetOriginId: poll-lambda
+            ViewerProtocolPolicy: https-only
+            AllowedMethods: [GET, HEAD, OPTIONS, PUT, POST, PATCH, DELETE]
+            # Managed-CachingDisabled: a cached vote count is a wrong vote count.
+            CachePolicyId: 4135ea2d-6df8-44a3-9df3-4b5a84be39ad
+            # Managed-AllViewerExceptHostHeader, required for Lambda Function URL origins.
+            OriginRequestPolicyId: b689b0a8-53d0-40ab-baf2-68738e2966ac
+        CustomErrorResponses:
+          # SPA fallback. The app is hash-routed, so this is mostly defensive — but
+          # /facilitator is a real pathname and must resolve after an edge auth pass.
+          - ErrorCode: 403
+            ResponseCode: 200
+            ResponsePagePath: /index.html
+            ErrorCachingMinTTL: 10
+          - ErrorCode: 404
+            ResponseCode: 200
+            ResponsePagePath: /index.html
+            ErrorCachingMinTTL: 10
+        ViewerCertificate:
+          CloudFrontDefaultCertificate: true
+
+  # ------------------------------------------------------------- GitHub Actions deploys
+  GitHubOidcProvider:
+    Type: AWS::IAM::OIDCProvider
+    Condition: ShouldCreateOidcProvider
+    Properties:
+      Url: https://token.actions.githubusercontent.com
+      ClientIdList:
+        - sts.amazonaws.com
+
+  DeployRole:
+    Type: AWS::IAM::Role
+    Condition: ShouldCreateDeployRole
+    Properties:
+      RoleName: !Sub "${ProjectName}-deploy"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Federated: !Sub "arn:aws:iam::${AWS::AccountId}:oidc-provider/token.actions.githubusercontent.com"
+            Action: sts:AssumeRoleWithWebIdentity
+            Condition:
+              StringEquals:
+                token.actions.githubusercontent.com:aud: sts.amazonaws.com
+              StringLike:
+                # A list is an OR. The immutable form is what an organisation with
+                # immutable OIDC subjects actually sends; the classic form is what every
+                # other organisation sends. Neither is a wildcard over the owner, so a
+                # similarly-named repository still cannot assume this role.
+                token.actions.githubusercontent.com:sub:
+                  - !Sub "repo:${GitHubRepository}:*"
+                  - !Sub "repo:${GitHubRepositoryImmutableId}:*"
+      Policies:
+        - PolicyName: workshop-deploy
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:ListBucket
+                  - s3:GetObject
+                  - s3:PutObject
+                  - s3:DeleteObject
+                Resource:
+                  - !GetAtt SiteBucket.Arn
+                  - !Sub "${SiteBucket.Arn}/*"
+              - Effect: Allow
+                Action:
+                  - cloudfront:CreateInvalidation
+                  - cloudfront:GetInvalidation
+                Resource: !Sub "arn:aws:cloudfront::${AWS::AccountId}:distribution/${SiteDistribution}"
+              - Effect: Allow
+                Action:
+                  - lambda:UpdateFunctionCode
+                  - lambda:GetFunction
+                  # `aws lambda wait function-updated` polls GetFunctionConfiguration, which
+                  # GetFunction does not imply. Without it the code ships and the workflow
+                  # then fails on the wait, leaving a deploy that is half reported.
+                  - lambda:GetFunctionConfiguration
+                Resource: !GetAtt PollFunction.Arn
+
+Outputs:
+  SiteUrl:
+    Description: Workshop URL. Put this on the slide.
+    Value: !Sub "https://${SiteDistribution.DomainName}"
+
+  DistributionId:
+    Description: Set as the CLOUDFRONT_DISTRIBUTION_ID repository variable.
+    Value: !Ref SiteDistribution
+
+  SiteBucketName:
+    Description: Set as the SITE_BUCKET repository variable.
+    Value: !Ref SiteBucket
+
+  PollFunctionName:
+    Description: Set as the POLL_FUNCTION_NAME repository variable.
+    Value: !Ref PollFunction
+
+  PollTableName:
+    Description: Pass to scripts/reset-poll.mjs as POLLING_TABLE_NAME.
+    Value: !Ref PollTable
+
+  DeployRoleArn:
+    Condition: ShouldCreateDeployRole
+    Description: Set as the AWS_DEPLOY_ROLE_ARN repository variable.
+    Value: !GetAtt DeployRole.Arn

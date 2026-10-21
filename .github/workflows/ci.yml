@@ -1,0 +1,26 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run validate:data
+      - run: npm run test
+      - run: npm run build
+      - run: npm run test:polling-load
+      # Via the workspace script, not a hardcoded path: npm hoists the Playwright bin to
+      # the workspace root, and whether it does is a resolution detail that changed under us
+      # once already.
+      - run: npm run test:e2e:install
+      - run: npm run test:e2e

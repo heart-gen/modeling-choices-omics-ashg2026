@@ -1,0 +1,2171 @@
+{
+  "schemaVersion": "0.2.0",
+  "scenarioId": "pooled-vs-stratified",
+  "title": "Pooled vs Stratified Analysis",
+  "subtitle": "Power, precision, and hidden heterogeneity",
+  "estimatedMinutes": 10,
+  "learningObjectives": [
+    "Compare pooled and stratified association estimates as the sample composition changes.",
+    "Explain why a precise, significant pooled estimate can describe only the dominant group.",
+    "Identify when stratified estimates are needed before a finding is applied to another group."
+  ],
+  "ancestryGroups": [
+    {
+      "id": "afr",
+      "label": "African ancestry",
+      "color": "#2563eb",
+      "n": 9950,
+      "af": 0.13
+    },
+    {
+      "id": "eur",
+      "label": "European ancestry",
+      "color": "#059669",
+      "n": 22000,
+      "af": 0.74
+    },
+    {
+      "id": "amr",
+      "label": "Admixed American ancestry",
+      "color": "#b45309",
+      "n": 8050,
+      "af": 0.42
+    }
+  ],
+  "prediction": {
+    "pollId": "predict-pooled-vs-stratified",
+    "question": "Raise the European-ancestry share of the pooled sample from 35% to 95%. What happens to the pooled effect estimate?",
+    "options": [
+      {
+        "id": "toward-european",
+        "label": "It grows toward the strong European-ancestry effect"
+      },
+      {
+        "id": "toward-african",
+        "label": "It shrinks toward the weak African-ancestry effect"
+      },
+      {
+        "id": "unchanged",
+        "label": "It stays put; only the interval changes"
+      },
+      {
+        "id": "loses-significance",
+        "label": "It stops being significant"
+      }
+    ],
+    "correctOptionId": "toward-european"
+  },
+  "controls": [
+    {
+      "id": "modelId",
+      "label": "Analysis strategy",
+      "type": "select",
+      "default": "pooled",
+      "values": [
+        {
+          "value": "pooled",
+          "label": "Pooled"
+        },
+        {
+          "value": "stratified",
+          "label": "Stratified"
+        }
+      ]
+    },
+    {
+      "id": "ancestryMix",
+      "label": "European-ancestry share in pooled sample (%)",
+      "type": "slider",
+      "default": 55,
+      "min": 35,
+      "max": 95,
+      "step": 5
+    }
+  ],
+  "variant": {
+    "rsid": "rs4988235",
+    "gene": "MCM6 / LCT",
+    "locus": "2q21.3",
+    "trait": "lactase persistence"
+  },
+  "alleleFrequencies": [
+    {
+      "variantId": "rs4988235",
+      "groupId": "afr",
+      "af": 0.13
+    },
+    {
+      "variantId": "rs4988235",
+      "groupId": "eur",
+      "af": 0.74
+    },
+    {
+      "variantId": "rs4988235",
+      "groupId": "amr",
+      "af": 0.42
+    }
+  ],
+  "simulatedEffects": [
+    {
+      "variantId": "rs4988235",
+      "groupId": "afr",
+      "beta": 0.02,
+      "mechanism": "Near-null: African lactase persistence is carried by other variants"
+    },
+    {
+      "variantId": "rs4988235",
+      "groupId": "eur",
+      "beta": 0.1,
+      "mechanism": "Strong: the European lactase-persistence allele"
+    },
+    {
+      "variantId": "rs4988235",
+      "groupId": "amr",
+      "beta": 0.07,
+      "mechanism": "Intermediate: admixed haplotype background"
+    }
+  ],
+  "associationResults": [
+    {
+      "modelId": "pooled",
+      "variantId": "rs4988235",
+      "beta": 0.08,
+      "se": 0.008,
+      "p": 5.515386195621845e-22
+    },
+    {
+      "modelId": "stratified",
+      "variantId": "rs4988235",
+      "groupId": "afr",
+      "beta": 0.02,
+      "se": 0.021,
+      "p": 0.34270771619144313
+    },
+    {
+      "modelId": "stratified",
+      "variantId": "rs4988235",
+      "groupId": "eur",
+      "beta": 0.1,
+      "se": 0.011,
+      "p": 3.5506477958018633e-20
+    },
+    {
+      "modelId": "stratified",
+      "variantId": "rs4988235",
+      "groupId": "amr",
+      "beta": 0.07,
+      "se": 0.016,
+      "p": 1.1663286679915003e-05
+    }
+  ],
+  "powerEstimates": [
+    {
+      "modelId": "stratified",
+      "groupId": "afr",
+      "n": 9950,
+      "effectSize": 0.02,
+      "power": 0.158
+    },
+    {
+      "modelId": "stratified",
+      "groupId": "eur",
+      "n": 22000,
+      "effectSize": 0.1,
+      "power": 1.0
+    },
+    {
+      "modelId": "stratified",
+      "groupId": "amr",
+      "n": 8050,
+      "effectSize": 0.07,
+      "power": 0.992
+    }
+  ],
+  "interpretation": {
+    "prompt": "Before switching models, predict whether a single pooled estimate will describe every ancestry group in the sample, or only the largest one.",
+    "whatChanged": "The pooled estimate is the most precise number on the screen and it is significant at every mix. As the European-ancestry share rises it moves onto the strong European effect, because a pooled regression is an information-weighted average and the European group carries most of the information. The African-ancestry estimate is 0.02 with an interval that includes zero at every mix, and nothing in the pooled output says so.",
+    "whyItMatters": "A pooled result can look efficient and decisive while describing only the dominant group. Applied to the underrepresented group, it overstates an effect that may barely exist there; this is the same number a pooled polygenic score is built from (module 5).",
+    "facilitatorNote": "Move the ancestry-mix slider and watch the pooled estimate migrate toward whichever group dominates the sample. The stratified estimates do not move. The top of the slider is the GWAS catalog today (the 'Genomics today' slide): the pooled estimate equals the European effect and is highly significant, while the African-ancestry estimate has never been distinguishable from zero. Point out that the direction is the real LCT biology: rs4988235 is the European persistence allele, and persistence in African populations is carried by other variants that this SNP does not tag. If the room asks why this is not the PCSK9 example from the framing slides: a loss-of-function allele absent in European ancestry cannot be diluted by pooling, because the European sample carries no information about it. This module shows the more common and less visible case, where the pooled number is real, significant, and wrong for a third of the room."
+  },
+  "vizSummaries": {
+    "effectComparisons": {
+      "byControl": "ancestryMix",
+      "values": {
+        "35": [
+          {
+            "label": "Pooled",
+            "modelId": "pooled",
+            "beta": 0.07,
+            "lower": 0.054,
+            "upper": 0.086
+          },
+          {
+            "label": "African ancestry",
+            "groupId": "afr",
+            "modelId": "stratified",
+            "beta": 0.02,
+            "lower": -0.014,
+            "upper": 0.054
+          },
+          {
+            "label": "European ancestry",
+            "groupId": "eur",
+            "modelId": "stratified",
+            "beta": 0.1,
+            "lower": 0.073,
+            "upper": 0.127
+          },
+          {
+            "label": "Admixed American ancestry",
+            "groupId": "amr",
+            "modelId": "stratified",
+            "beta": 0.07,
+            "lower": 0.044,
+            "upper": 0.096
+          }
+        ],
+        "40": [
+          {
+            "label": "Pooled",
+            "modelId": "pooled",
+            "beta": 0.072,
+            "lower": 0.056,
+            "upper": 0.089
+          },
+          {
+            "label": "African ancestry",
+            "groupId": "afr",
+            "modelId": "stratified",
+            "beta": 0.02,
+            "lower": -0.016,
+            "upper": 0.056
+          },
+          {
+            "label": "European ancestry",
+            "groupId": "eur",
+            "modelId": "stratified",
+            "beta": 0.1,
+            "lower": 0.075,
+            "upper": 0.125
+          },
+          {
+            "label": "Admixed American ancestry",
+            "groupId": "amr",
+            "modelId": "stratified",
+            "beta": 0.07,
+            "lower": 0.043,
+            "upper": 0.097
+          }
+        ],
+        "45": [
+          {
+            "label": "Pooled",
+            "modelId": "pooled",
+            "beta": 0.075,
+            "lower": 0.059,
+            "upper": 0.091
+          },
+          {
+            "label": "African ancestry",
+            "groupId": "afr",
+            "modelId": "stratified",
+            "beta": 0.02,
+            "lower": -0.017,
+            "upper": 0.057
+          },
+          {
+            "label": "European ancestry",
+            "groupId": "eur",
+            "modelId": "stratified",
+            "beta": 0.1,
+            "lower": 0.076,
+            "upper": 0.124
+          },
+          {
+            "label": "Admixed American ancestry",
+            "groupId": "amr",
+            "modelId": "stratified",
+            "beta": 0.07,
+            "lower": 0.042,
+            "upper": 0.098
+          }
+        ],
+        "50": [
+          {
+            "label": "Pooled",
+            "modelId": "pooled",
+            "beta": 0.077,
+            "lower": 0.061,
+            "upper": 0.094
+          },
+          {
+            "label": "African ancestry",
+            "groupId": "afr",
+            "modelId": "stratified",
+            "beta": 0.02,
+            "lower": -0.019,
+            "upper": 0.059
+          },
+          {
+            "label": "European ancestry",
+            "groupId": "eur",
+            "modelId": "stratified",
+            "beta": 0.1,
+            "lower": 0.078,
+            "upper": 0.122
+          },
+          {
+            "label": "Admixed American ancestry",
+            "groupId": "amr",
+            "modelId": "stratified",
+            "beta": 0.07,
+            "lower": 0.04,
+            "upper": 0.1
+          }
+        ],
+        "55": [
+          {
+            "label": "Pooled",
+            "modelId": "pooled",
+            "beta": 0.08,
+            "lower": 0.063,
+            "upper": 0.096
+          },
+          {
+            "label": "African ancestry",
+            "groupId": "afr",
+            "modelId": "stratified",
+            "beta": 0.02,
+            "lower": -0.021,
+            "upper": 0.061
+          },
+          {
+            "label": "European ancestry",
+            "groupId": "eur",
+            "modelId": "stratified",
+            "beta": 0.1,
+            "lower": 0.079,
+            "upper": 0.121
+          },
+          {
+            "label": "Admixed American ancestry",
+            "groupId": "amr",
+            "modelId": "stratified",
+            "beta": 0.07,
+            "lower": 0.039,
+            "upper": 0.101
+          }
+        ],
+        "60": [
+          {
+            "label": "Pooled",
+            "modelId": "pooled",
+            "beta": 0.082,
+            "lower": 0.066,
+            "upper": 0.098
+          },
+          {
+            "label": "African ancestry",
+            "groupId": "afr",
+            "modelId": "stratified",
+            "beta": 0.02,
+            "lower": -0.024,
+            "upper": 0.064
+          },
+          {
+            "label": "European ancestry",
+            "groupId": "eur",
+            "modelId": "stratified",
+            "beta": 0.1,
+            "lower": 0.08,
+            "upper": 0.12
+          },
+          {
+            "label": "Admixed American ancestry",
+            "groupId": "amr",
+            "modelId": "stratified",
+            "beta": 0.07,
+            "lower": 0.037,
+            "upper": 0.103
+          }
+        ],
+        "65": [
+          {
+            "label": "Pooled",
+            "modelId": "pooled",
+            "beta": 0.084,
+            "lower": 0.068,
+            "upper": 0.1
+          },
+          {
+            "label": "African ancestry",
+            "groupId": "afr",
+            "modelId": "stratified",
+            "beta": 0.02,
+            "lower": -0.027,
+            "upper": 0.067
+          },
+          {
+            "label": "European ancestry",
+            "groupId": "eur",
+            "modelId": "stratified",
+            "beta": 0.1,
+            "lower": 0.08,
+            "upper": 0.12
+          },
+          {
+            "label": "Admixed American ancestry",
+            "groupId": "amr",
+            "modelId": "stratified",
+            "beta": 0.07,
+            "lower": 0.035,
+            "upper": 0.105
+          }
+        ],
+        "70": [
+          {
+            "label": "Pooled",
+            "modelId": "pooled",
+            "beta": 0.087,
+            "lower": 0.071,
+            "upper": 0.103
+          },
+          {
+            "label": "African ancestry",
+            "groupId": "afr",
+            "modelId": "stratified",
+            "beta": 0.02,
+            "lower": -0.031,
+            "upper": 0.071
+          },
+          {
+            "label": "European ancestry",
+            "groupId": "eur",
+            "modelId": "stratified",
+            "beta": 0.1,
+            "lower": 0.081,
+            "upper": 0.119
+          },
+          {
+            "label": "Admixed American ancestry",
+            "groupId": "amr",
+            "modelId": "stratified",
+            "beta": 0.07,
+            "lower": 0.032,
+            "upper": 0.108
+          }
+        ],
+        "75": [
+          {
+            "label": "Pooled",
+            "modelId": "pooled",
+            "beta": 0.089,
+            "lower": 0.073,
+            "upper": 0.105
+          },
+          {
+            "label": "African ancestry",
+            "groupId": "afr",
+            "modelId": "stratified",
+            "beta": 0.02,
+            "lower": -0.035,
+            "upper": 0.075
+          },
+          {
+            "label": "European ancestry",
+            "groupId": "eur",
+            "modelId": "stratified",
+            "beta": 0.1,
+            "lower": 0.082,
+            "upper": 0.118
+          },
+          {
+            "label": "Admixed American ancestry",
+            "groupId": "amr",
+            "modelId": "stratified",
+            "beta": 0.07,
+            "lower": 0.028,
+            "upper": 0.112
+          }
+        ],
+        "80": [
+          {
+            "label": "Pooled",
+            "modelId": "pooled",
+            "beta": 0.091,
+            "lower": 0.075,
+            "upper": 0.107
+          },
+          {
+            "label": "African ancestry",
+            "groupId": "afr",
+            "modelId": "stratified",
+            "beta": 0.02,
+            "lower": -0.042,
+            "upper": 0.082
+          },
+          {
+            "label": "European ancestry",
+            "groupId": "eur",
+            "modelId": "stratified",
+            "beta": 0.1,
+            "lower": 0.082,
+            "upper": 0.118
+          },
+          {
+            "label": "Admixed American ancestry",
+            "groupId": "amr",
+            "modelId": "stratified",
+            "beta": 0.07,
+            "lower": 0.023,
+            "upper": 0.117
+          }
+        ],
+        "85": [
+          {
+            "label": "Pooled",
+            "modelId": "pooled",
+            "beta": 0.093,
+            "lower": 0.078,
+            "upper": 0.109
+          },
+          {
+            "label": "African ancestry",
+            "groupId": "afr",
+            "modelId": "stratified",
+            "beta": 0.02,
+            "lower": -0.052,
+            "upper": 0.092
+          },
+          {
+            "label": "European ancestry",
+            "groupId": "eur",
+            "modelId": "stratified",
+            "beta": 0.1,
+            "lower": 0.083,
+            "upper": 0.117
+          },
+          {
+            "label": "Admixed American ancestry",
+            "groupId": "amr",
+            "modelId": "stratified",
+            "beta": 0.07,
+            "lower": 0.016,
+            "upper": 0.124
+          }
+        ],
+        "90": [
+          {
+            "label": "Pooled",
+            "modelId": "pooled",
+            "beta": 0.096,
+            "lower": 0.08,
+            "upper": 0.112
+          },
+          {
+            "label": "African ancestry",
+            "groupId": "afr",
+            "modelId": "stratified",
+            "beta": 0.02,
+            "lower": -0.068,
+            "upper": 0.108
+          },
+          {
+            "label": "European ancestry",
+            "groupId": "eur",
+            "modelId": "stratified",
+            "beta": 0.1,
+            "lower": 0.083,
+            "upper": 0.117
+          },
+          {
+            "label": "Admixed American ancestry",
+            "groupId": "amr",
+            "modelId": "stratified",
+            "beta": 0.07,
+            "lower": 0.004,
+            "upper": 0.136
+          }
+        ],
+        "95": [
+          {
+            "label": "Pooled",
+            "modelId": "pooled",
+            "beta": 0.098,
+            "lower": 0.082,
+            "upper": 0.114
+          },
+          {
+            "label": "African ancestry",
+            "groupId": "afr",
+            "modelId": "stratified",
+            "beta": 0.02,
+            "lower": -0.104,
+            "upper": 0.144
+          },
+          {
+            "label": "European ancestry",
+            "groupId": "eur",
+            "modelId": "stratified",
+            "beta": 0.1,
+            "lower": 0.084,
+            "upper": 0.116
+          },
+          {
+            "label": "Admixed American ancestry",
+            "groupId": "amr",
+            "modelId": "stratified",
+            "beta": 0.07,
+            "lower": -0.024,
+            "upper": 0.164
+          }
+        ]
+      }
+    },
+    "powerCurve": {
+      "byControl": "ancestryMix",
+      "values": {
+        "35": [
+          {
+            "label": "Pooled",
+            "modelId": "pooled",
+            "n": 5000,
+            "power": 0.841
+          },
+          {
+            "label": "Pooled",
+            "modelId": "pooled",
+            "n": 10000,
+            "power": 0.987
+          },
+          {
+            "label": "Pooled",
+            "modelId": "pooled",
+            "n": 20000,
+            "power": 1.0
+          },
+          {
+            "label": "Pooled",
+            "modelId": "pooled",
+            "n": 40000,
+            "power": 1.0
+          },
+          {
+            "label": "Pooled",
+            "modelId": "pooled",
+            "n": 80000,
+            "power": 1.0
+          },
+          {
+            "label": "African ancestry",
+            "groupId": "afr",
+            "modelId": "stratified",
+            "n": 7185,
+            "power": 0.127
+          },
+          {
+            "label": "African ancestry",
+            "groupId": "afr",
+            "modelId": "stratified",
+            "n": 14370,
+            "power": 0.207
+          },
+          {
+            "label": "African ancestry",
+            "groupId": "afr",
+            "modelId": "stratified",
+            "n": 21555,
+            "power": 0.287
+          },
+          {
+            "label": "African ancestry",
+            "groupId": "afr",
+            "modelId": "stratified",
+            "n": 28740,
+            "power": 0.364
+          },
+          {
+            "label": "European ancestry",
+            "groupId": "eur",
+            "modelId": "stratified",
+            "n": 7000,
+            "power": 0.999
+          },
+          {
+            "label": "European ancestry",
+            "groupId": "eur",
+            "modelId": "stratified",
+            "n": 14000,
+            "power": 1.0
+          },
+          {
+            "label": "European ancestry",
+            "groupId": "eur",
+            "modelId": "stratified",
+            "n": 21000,
+            "power": 1.0
+          },
+          {
+            "label": "European ancestry",
+            "groupId": "eur",
+            "modelId": "stratified",
+            "n": 28000,
+            "power": 1.0
+          },
+          {
+            "label": "Admixed American ancestry",
+            "groupId": "amr",
+            "modelId": "stratified",
+            "n": 5815,
+            "power": 0.961
+          },
+          {
+            "label": "Admixed American ancestry",
+            "groupId": "amr",
+            "modelId": "stratified",
+            "n": 11630,
+            "power": 1.0
+          },
+          {
+            "label": "Admixed American ancestry",
+            "groupId": "amr",
+            "modelId": "stratified",
+            "n": 17445,
+            "power": 1.0
+          },
+          {
+            "label": "Admixed American ancestry",
+            "groupId": "amr",
+            "modelId": "stratified",
+            "n": 23260,
+            "power": 1.0
+          }
+        ],
+        "40": [
+          {
+            "label": "Pooled",
+            "modelId": "pooled",
+            "n": 5000,
+            "power": 0.867
+          },
+          {
+            "label": "Pooled",
+            "modelId": "pooled",
+            "n": 10000,
+            "power": 0.991
+          },
+          {
+            "label": "Pooled",
+            "modelId": "pooled",
+            "n": 20000,
+            "power": 1.0
+          },
+          {
+            "label": "Pooled",
+            "modelId": "pooled",
+            "n": 40000,
+            "power": 1.0
+          },
+          {
+            "label": "Pooled",
+            "modelId": "pooled",
+            "n": 80000,
+            "power": 1.0
+          },
+          {
+            "label": "African ancestry",
+            "groupId": "afr",
+            "modelId": "stratified",
+            "n": 6630,
+            "power": 0.121
+          },
+          {
+            "label": "African ancestry",
+            "groupId": "afr",
+            "modelId": "stratified",
+            "n": 13260,
+            "power": 0.195
+          },
+          {
+            "label": "African ancestry",
+            "groupId": "afr",
+            "modelId": "stratified",
+            "n": 19890,
+            "power": 0.269
+          },
+          {
+            "label": "African ancestry",
+            "groupId": "afr",
+            "modelId": "stratified",
+            "n": 26520,
+            "power": 0.341
+          },
+          {
+            "label": "European ancestry",
+            "groupId": "eur",
+            "modelId": "stratified",
+            "n": 8000,
+            "power": 1.0
+          },
+          {
+            "label": "European ancestry",
+            "groupId": "eur",
+            "modelId": "stratified",
+            "n": 16000,
+            "power": 1.0
+          },
+          {
+            "label": "European ancestry",
+            "groupId": "eur",
+            "modelId": "stratified",
+            "n": 24000,
+            "power": 1.0
+          },
+          {
+            "label": "European ancestry",
+            "groupId": "eur",
+            "modelId": "stratified",
+            "n": 32000,
+            "power": 1.0
+          },
+          {
+            "label": "Admixed American ancestry",
+            "groupId": "amr",
+            "modelId": "stratified",
+            "n": 5370,
+            "power": 0.947
+          },
+          {
+            "label": "Admixed American ancestry",
+            "groupId": "amr",
+            "modelId": "stratified",
+            "n": 10740,
+            "power": 0.999
+          },
+          {
+            "label": "Admixed American ancestry",
+            "groupId": "amr",
+            "modelId": "stratified",
+            "n": 16110,
+            "power": 1.0
+          },
+          {
+            "label": "Admixed American ancestry",
+            "groupId": "amr",
+            "modelId": "stratified",
+            "n": 21480,
+            "power": 1.0
+          }
+        ],
+        "45": [
+          {
+            "label": "Pooled",
+            "modelId": "pooled",
+            "n": 5000,
+            "power": 0.889
+          },
+          {
+            "label": "Pooled",
+            "modelId": "pooled",
+            "n": 10000,
+            "power": 0.994
+          },
+          {
+            "label": "Pooled",
+            "modelId": "pooled",
+            "n": 20000,
+            "power": 1.0
+          },
+          {
+            "label": "Pooled",
+            "modelId": "pooled",
+            "n": 40000,
+            "power": 1.0
+          },
+          {
+            "label": "Pooled",
+            "modelId": "pooled",
+            "n": 80000,
+            "power": 1.0
+          },
+          {
+            "label": "African ancestry",
+            "groupId": "afr",
+            "modelId": "stratified",
+            "n": 6080,
+            "power": 0.115
+          },
+          {
+            "label": "African ancestry",
+            "groupId": "afr",
+            "modelId": "stratified",
+            "n": 12160,
+            "power": 0.182
+          },
+          {
+            "label": "African ancestry",
+            "groupId": "afr",
+            "modelId": "stratified",
+            "n": 18240,
+            "power": 0.25
+          },
+          {
+            "label": "African ancestry",
+            "groupId": "afr",
+            "modelId": "stratified",
+            "n": 24320,
+            "power": 0.317
+          },
+          {
+            "label": "European ancestry",
+            "groupId": "eur",
+            "modelId": "stratified",
+            "n": 9000,
+            "power": 1.0
+          },
+          {
+            "label": "European ancestry",
+            "groupId": "eur",
+            "modelId": "stratified",
+            "n": 18000,
+            "power": 1.0
+          },
+          {
+            "label": "European ancestry",
+            "groupId": "eur",
+            "modelId": "stratified",
+            "n": 27000,
+            "power": 1.0
+          },
+          {
+            "label": "European ancestry",
+            "groupId": "eur",
+            "modelId": "stratified",
+            "n": 36000,
+            "power": 1.0
+          },
+          {
+            "label": "Admixed American ancestry",
+            "groupId": "amr",
+            "modelId": "stratified",
+            "n": 4920,
+            "power": 0.929
+          },
+          {
+            "label": "Admixed American ancestry",
+            "groupId": "amr",
+            "modelId": "stratified",
+            "n": 9840,
+            "power": 0.998
+          },
+          {
+            "label": "Admixed American ancestry",
+            "groupId": "amr",
+            "modelId": "stratified",
+            "n": 14760,
+            "power": 1.0
+          },
+          {
+            "label": "Admixed American ancestry",
+            "groupId": "amr",
+            "modelId": "stratified",
+            "n": 19680,
+            "power": 1.0
+          }
+        ],
+        "50": [
+          {
+            "label": "Pooled",
+            "modelId": "pooled",
+            "n": 5000,
+            "power": 0.909
+          },
+          {
+            "label": "Pooled",
+            "modelId": "pooled",
+            "n": 10000,
+            "power": 0.997
+          },
+          {
+            "label": "Pooled",
+            "modelId": "pooled",
+            "n": 20000,
+            "power": 1.0
+          },
+          {
+            "label": "Pooled",
+            "modelId": "pooled",
+            "n": 40000,
+            "power": 1.0
+          },
+          {
+            "label": "Pooled",
+            "modelId": "pooled",
+            "n": 80000,
+            "power": 1.0
+          },
+          {
+            "label": "African ancestry",
+            "groupId": "afr",
+            "modelId": "stratified",
+            "n": 5525,
+            "power": 0.109
+          },
+          {
+            "label": "African ancestry",
+            "groupId": "afr",
+            "modelId": "stratified",
+            "n": 11050,
+            "power": 0.17
+          },
+          {
+            "label": "African ancestry",
+            "groupId": "afr",
+            "modelId": "stratified",
+            "n": 16575,
+            "power": 0.232
+          },
+          {
+            "label": "African ancestry",
+            "groupId": "afr",
+            "modelId": "stratified",
+            "n": 22100,
+            "power": 0.293
+          },
+          {
+            "label": "European ancestry",
+            "groupId": "eur",
+            "modelId": "stratified",
+            "n": 10000,
+            "power": 1.0
+          },
+          {
+            "label": "European ancestry",
+            "groupId": "eur",
+            "modelId": "stratified",
+            "n": 20000,
+            "power": 1.0
+          },
+          {
+            "label": "European ancestry",
+            "groupId": "eur",
+            "modelId": "stratified",
+            "n": 30000,
+            "power": 1.0
+          },
+          {
+            "label": "European ancestry",
+            "groupId": "eur",
+            "modelId": "stratified",
+            "n": 40000,
+            "power": 1.0
+          },
+          {
+            "label": "Admixed American ancestry",
+            "groupId": "amr",
+            "modelId": "stratified",
+            "n": 4475,
+            "power": 0.905
+          },
+          {
+            "label": "Admixed American ancestry",
+            "groupId": "amr",
+            "modelId": "stratified",
+            "n": 8950,
+            "power": 0.996
+          },
+          {
+            "label": "Admixed American ancestry",
+            "groupId": "amr",
+            "modelId": "stratified",
+            "n": 13425,
+            "power": 1.0
+          },
+          {
+            "label": "Admixed American ancestry",
+            "groupId": "amr",
+            "modelId": "stratified",
+            "n": 17900,
+            "power": 1.0
+          }
+        ],
+        "55": [
+          {
+            "label": "Pooled",
+            "modelId": "pooled",
+            "n": 5000,
+            "power": 0.926
+          },
+          {
+            "label": "Pooled",
+            "modelId": "pooled",
+            "n": 10000,
+            "power": 0.998
+          },
+          {
+            "label": "Pooled",
+            "modelId": "pooled",
+            "n": 20000,
+            "power": 1.0
+          },
+          {
+            "label": "Pooled",
+            "modelId": "pooled",
+            "n": 40000,
+            "power": 1.0
+          },
+          {
+            "label": "Pooled",
+            "modelId": "pooled",
+            "n": 80000,
+            "power": 1.0
+          },
+          {
+            "label": "African ancestry",
+            "groupId": "afr",
+            "modelId": "stratified",
+            "n": 4975,
+            "power": 0.103
+          },
+          {
+            "label": "African ancestry",
+            "groupId": "afr",
+            "modelId": "stratified",
+            "n": 9950,
+            "power": 0.158
+          },
+          {
+            "label": "African ancestry",
+            "groupId": "afr",
+            "modelId": "stratified",
+            "n": 14925,
+            "power": 0.213
+          },
+          {
+            "label": "African ancestry",
+            "groupId": "afr",
+            "modelId": "stratified",
+            "n": 19900,
+            "power": 0.269
+          },
+          {
+            "label": "European ancestry",
+            "groupId": "eur",
+            "modelId": "stratified",
+            "n": 11000,
+            "power": 1.0
+          },
+          {
+            "label": "European ancestry",
+            "groupId": "eur",
+            "modelId": "stratified",
+            "n": 22000,
+            "power": 1.0
+          },
+          {
+            "label": "European ancestry",
+            "groupId": "eur",
+            "modelId": "stratified",
+            "n": 33000,
+            "power": 1.0
+          },
+          {
+            "label": "European ancestry",
+            "groupId": "eur",
+            "modelId": "stratified",
+            "n": 44000,
+            "power": 1.0
+          },
+          {
+            "label": "Admixed American ancestry",
+            "groupId": "amr",
+            "modelId": "stratified",
+            "n": 4025,
+            "power": 0.873
+          },
+          {
+            "label": "Admixed American ancestry",
+            "groupId": "amr",
+            "modelId": "stratified",
+            "n": 8050,
+            "power": 0.992
+          },
+          {
+            "label": "Admixed American ancestry",
+            "groupId": "amr",
+            "modelId": "stratified",
+            "n": 12075,
+            "power": 1.0
+          },
+          {
+            "label": "Admixed American ancestry",
+            "groupId": "amr",
+            "modelId": "stratified",
+            "n": 16100,
+            "power": 1.0
+          }
+        ],
+        "60": [
+          {
+            "label": "Pooled",
+            "modelId": "pooled",
+            "n": 5000,
+            "power": 0.94
+          },
+          {
+            "label": "Pooled",
+            "modelId": "pooled",
+            "n": 10000,
+            "power": 0.999
+          },
+          {
+            "label": "Pooled",
+            "modelId": "pooled",
+            "n": 20000,
+            "power": 1.0
+          },
+          {
+            "label": "Pooled",
+            "modelId": "pooled",
+            "n": 40000,
+            "power": 1.0
+          },
+          {
+            "label": "Pooled",
+            "modelId": "pooled",
+            "n": 80000,
+            "power": 1.0
+          },
+          {
+            "label": "African ancestry",
+            "groupId": "afr",
+            "modelId": "stratified",
+            "n": 4420,
+            "power": 0.097
+          },
+          {
+            "label": "African ancestry",
+            "groupId": "afr",
+            "modelId": "stratified",
+            "n": 8840,
+            "power": 0.145
+          },
+          {
+            "label": "African ancestry",
+            "groupId": "afr",
+            "modelId": "stratified",
+            "n": 13260,
+            "power": 0.195
+          },
+          {
+            "label": "African ancestry",
+            "groupId": "afr",
+            "modelId": "stratified",
+            "n": 17680,
+            "power": 0.244
+          },
+          {
+            "label": "European ancestry",
+            "groupId": "eur",
+            "modelId": "stratified",
+            "n": 12000,
+            "power": 1.0
+          },
+          {
+            "label": "European ancestry",
+            "groupId": "eur",
+            "modelId": "stratified",
+            "n": 24000,
+            "power": 1.0
+          },
+          {
+            "label": "European ancestry",
+            "groupId": "eur",
+            "modelId": "stratified",
+            "n": 36000,
+            "power": 1.0
+          },
+          {
+            "label": "European ancestry",
+            "groupId": "eur",
+            "modelId": "stratified",
+            "n": 48000,
+            "power": 1.0
+          },
+          {
+            "label": "Admixed American ancestry",
+            "groupId": "amr",
+            "modelId": "stratified",
+            "n": 3580,
+            "power": 0.832
+          },
+          {
+            "label": "Admixed American ancestry",
+            "groupId": "amr",
+            "modelId": "stratified",
+            "n": 7160,
+            "power": 0.985
+          },
+          {
+            "label": "Admixed American ancestry",
+            "groupId": "amr",
+            "modelId": "stratified",
+            "n": 10740,
+            "power": 0.999
+          },
+          {
+            "label": "Admixed American ancestry",
+            "groupId": "amr",
+            "modelId": "stratified",
+            "n": 14320,
+            "power": 1.0
+          }
+        ],
+        "65": [
+          {
+            "label": "Pooled",
+            "modelId": "pooled",
+            "n": 5000,
+            "power": 0.952
+          },
+          {
+            "label": "Pooled",
+            "modelId": "pooled",
+            "n": 10000,
+            "power": 0.999
+          },
+          {
+            "label": "Pooled",
+            "modelId": "pooled",
+            "n": 20000,
+            "power": 1.0
+          },
+          {
+            "label": "Pooled",
+            "modelId": "pooled",
+            "n": 40000,
+            "power": 1.0
+          },
+          {
+            "label": "Pooled",
+            "modelId": "pooled",
+            "n": 80000,
+            "power": 1.0
+          },
+          {
+            "label": "African ancestry",
+            "groupId": "afr",
+            "modelId": "stratified",
+            "n": 3870,
+            "power": 0.091
+          },
+          {
+            "label": "African ancestry",
+            "groupId": "afr",
+            "modelId": "stratified",
+            "n": 7740,
+            "power": 0.133
+          },
+          {
+            "label": "African ancestry",
+            "groupId": "afr",
+            "modelId": "stratified",
+            "n": 11610,
+            "power": 0.176
+          },
+          {
+            "label": "African ancestry",
+            "groupId": "afr",
+            "modelId": "stratified",
+            "n": 15480,
+            "power": 0.22
+          },
+          {
+            "label": "European ancestry",
+            "groupId": "eur",
+            "modelId": "stratified",
+            "n": 13000,
+            "power": 1.0
+          },
+          {
+            "label": "European ancestry",
+            "groupId": "eur",
+            "modelId": "stratified",
+            "n": 26000,
+            "power": 1.0
+          },
+          {
+            "label": "European ancestry",
+            "groupId": "eur",
+            "modelId": "stratified",
+            "n": 39000,
+            "power": 1.0
+          },
+          {
+            "label": "European ancestry",
+            "groupId": "eur",
+            "modelId": "stratified",
+            "n": 52000,
+            "power": 1.0
+          },
+          {
+            "label": "Admixed American ancestry",
+            "groupId": "amr",
+            "modelId": "stratified",
+            "n": 3130,
+            "power": 0.78
+          },
+          {
+            "label": "Admixed American ancestry",
+            "groupId": "amr",
+            "modelId": "stratified",
+            "n": 6260,
+            "power": 0.972
+          },
+          {
+            "label": "Admixed American ancestry",
+            "groupId": "amr",
+            "modelId": "stratified",
+            "n": 9390,
+            "power": 0.997
+          },
+          {
+            "label": "Admixed American ancestry",
+            "groupId": "amr",
+            "modelId": "stratified",
+            "n": 12520,
+            "power": 1.0
+          }
+        ],
+        "70": [
+          {
+            "label": "Pooled",
+            "modelId": "pooled",
+            "n": 5000,
+            "power": 0.962
+          },
+          {
+            "label": "Pooled",
+            "modelId": "pooled",
+            "n": 10000,
+            "power": 1.0
+          },
+          {
+            "label": "Pooled",
+            "modelId": "pooled",
+            "n": 20000,
+            "power": 1.0
+          },
+          {
+            "label": "Pooled",
+            "modelId": "pooled",
+            "n": 40000,
+            "power": 1.0
+          },
+          {
+            "label": "Pooled",
+            "modelId": "pooled",
+            "n": 80000,
+            "power": 1.0
+          },
+          {
+            "label": "African ancestry",
+            "groupId": "afr",
+            "modelId": "stratified",
+            "n": 3315,
+            "power": 0.085
+          },
+          {
+            "label": "African ancestry",
+            "groupId": "afr",
+            "modelId": "stratified",
+            "n": 6630,
+            "power": 0.121
+          },
+          {
+            "label": "African ancestry",
+            "groupId": "afr",
+            "modelId": "stratified",
+            "n": 9945,
+            "power": 0.158
+          },
+          {
+            "label": "African ancestry",
+            "groupId": "afr",
+            "modelId": "stratified",
+            "n": 13260,
+            "power": 0.195
+          },
+          {
+            "label": "European ancestry",
+            "groupId": "eur",
+            "modelId": "stratified",
+            "n": 14000,
+            "power": 1.0
+          },
+          {
+            "label": "European ancestry",
+            "groupId": "eur",
+            "modelId": "stratified",
+            "n": 28000,
+            "power": 1.0
+          },
+          {
+            "label": "European ancestry",
+            "groupId": "eur",
+            "modelId": "stratified",
+            "n": 42000,
+            "power": 1.0
+          },
+          {
+            "label": "European ancestry",
+            "groupId": "eur",
+            "modelId": "stratified",
+            "n": 56000,
+            "power": 1.0
+          },
+          {
+            "label": "Admixed American ancestry",
+            "groupId": "amr",
+            "modelId": "stratified",
+            "n": 2685,
+            "power": 0.716
+          },
+          {
+            "label": "Admixed American ancestry",
+            "groupId": "amr",
+            "modelId": "stratified",
+            "n": 5370,
+            "power": 0.947
+          },
+          {
+            "label": "Admixed American ancestry",
+            "groupId": "amr",
+            "modelId": "stratified",
+            "n": 8055,
+            "power": 0.992
+          },
+          {
+            "label": "Admixed American ancestry",
+            "groupId": "amr",
+            "modelId": "stratified",
+            "n": 10740,
+            "power": 0.999
+          }
+        ],
+        "75": [
+          {
+            "label": "Pooled",
+            "modelId": "pooled",
+            "n": 5000,
+            "power": 0.97
+          },
+          {
+            "label": "Pooled",
+            "modelId": "pooled",
+            "n": 10000,
+            "power": 1.0
+          },
+          {
+            "label": "Pooled",
+            "modelId": "pooled",
+            "n": 20000,
+            "power": 1.0
+          },
+          {
+            "label": "Pooled",
+            "modelId": "pooled",
+            "n": 40000,
+            "power": 1.0
+          },
+          {
+            "label": "Pooled",
+            "modelId": "pooled",
+            "n": 80000,
+            "power": 1.0
+          },
+          {
+            "label": "African ancestry",
+            "groupId": "afr",
+            "modelId": "stratified",
+            "n": 2765,
+            "power": 0.079
+          },
+          {
+            "label": "African ancestry",
+            "groupId": "afr",
+            "modelId": "stratified",
+            "n": 5530,
+            "power": 0.109
+          },
+          {
+            "label": "African ancestry",
+            "groupId": "afr",
+            "modelId": "stratified",
+            "n": 8295,
+            "power": 0.139
+          },
+          {
+            "label": "African ancestry",
+            "groupId": "afr",
+            "modelId": "stratified",
+            "n": 11060,
+            "power": 0.17
+          },
+          {
+            "label": "European ancestry",
+            "groupId": "eur",
+            "modelId": "stratified",
+            "n": 15000,
+            "power": 1.0
+          },
+          {
+            "label": "European ancestry",
+            "groupId": "eur",
+            "modelId": "stratified",
+            "n": 30000,
+            "power": 1.0
+          },
+          {
+            "label": "European ancestry",
+            "groupId": "eur",
+            "modelId": "stratified",
+            "n": 45000,
+            "power": 1.0
+          },
+          {
+            "label": "European ancestry",
+            "groupId": "eur",
+            "modelId": "stratified",
+            "n": 60000,
+            "power": 1.0
+          },
+          {
+            "label": "Admixed American ancestry",
+            "groupId": "amr",
+            "modelId": "stratified",
+            "n": 2235,
+            "power": 0.637
+          },
+          {
+            "label": "Admixed American ancestry",
+            "groupId": "amr",
+            "modelId": "stratified",
+            "n": 4470,
+            "power": 0.904
+          },
+          {
+            "label": "Admixed American ancestry",
+            "groupId": "amr",
+            "modelId": "stratified",
+            "n": 6705,
+            "power": 0.979
+          },
+          {
+            "label": "Admixed American ancestry",
+            "groupId": "amr",
+            "modelId": "stratified",
+            "n": 8940,
+            "power": 0.996
+          }
+        ],
+        "80": [
+          {
+            "label": "Pooled",
+            "modelId": "pooled",
+            "n": 5000,
+            "power": 0.977
+          },
+          {
+            "label": "Pooled",
+            "modelId": "pooled",
+            "n": 10000,
+            "power": 1.0
+          },
+          {
+            "label": "Pooled",
+            "modelId": "pooled",
+            "n": 20000,
+            "power": 1.0
+          },
+          {
+            "label": "Pooled",
+            "modelId": "pooled",
+            "n": 40000,
+            "power": 1.0
+          },
+          {
+            "label": "Pooled",
+            "modelId": "pooled",
+            "n": 80000,
+            "power": 1.0
+          },
+          {
+            "label": "African ancestry",
+            "groupId": "afr",
+            "modelId": "stratified",
+            "n": 2210,
+            "power": 0.073
+          },
+          {
+            "label": "African ancestry",
+            "groupId": "afr",
+            "modelId": "stratified",
+            "n": 4420,
+            "power": 0.097
+          },
+          {
+            "label": "African ancestry",
+            "groupId": "afr",
+            "modelId": "stratified",
+            "n": 6630,
+            "power": 0.121
+          },
+          {
+            "label": "African ancestry",
+            "groupId": "afr",
+            "modelId": "stratified",
+            "n": 8840,
+            "power": 0.145
+          },
+          {
+            "label": "European ancestry",
+            "groupId": "eur",
+            "modelId": "stratified",
+            "n": 16000,
+            "power": 1.0
+          },
+          {
+            "label": "European ancestry",
+            "groupId": "eur",
+            "modelId": "stratified",
+            "n": 32000,
+            "power": 1.0
+          },
+          {
+            "label": "European ancestry",
+            "groupId": "eur",
+            "modelId": "stratified",
+            "n": 48000,
+            "power": 1.0
+          },
+          {
+            "label": "European ancestry",
+            "groupId": "eur",
+            "modelId": "stratified",
+            "n": 64000,
+            "power": 1.0
+          },
+          {
+            "label": "Admixed American ancestry",
+            "groupId": "amr",
+            "modelId": "stratified",
+            "n": 1790,
+            "power": 0.543
+          },
+          {
+            "label": "Admixed American ancestry",
+            "groupId": "amr",
+            "modelId": "stratified",
+            "n": 3580,
+            "power": 0.832
+          },
+          {
+            "label": "Admixed American ancestry",
+            "groupId": "amr",
+            "modelId": "stratified",
+            "n": 5370,
+            "power": 0.947
+          },
+          {
+            "label": "Admixed American ancestry",
+            "groupId": "amr",
+            "modelId": "stratified",
+            "n": 7160,
+            "power": 0.985
+          }
+        ],
+        "85": [
+          {
+            "label": "Pooled",
+            "modelId": "pooled",
+            "n": 5000,
+            "power": 0.982
+          },
+          {
+            "label": "Pooled",
+            "modelId": "pooled",
+            "n": 10000,
+            "power": 1.0
+          },
+          {
+            "label": "Pooled",
+            "modelId": "pooled",
+            "n": 20000,
+            "power": 1.0
+          },
+          {
+            "label": "Pooled",
+            "modelId": "pooled",
+            "n": 40000,
+            "power": 1.0
+          },
+          {
+            "label": "Pooled",
+            "modelId": "pooled",
+            "n": 80000,
+            "power": 1.0
+          },
+          {
+            "label": "African ancestry",
+            "groupId": "afr",
+            "modelId": "stratified",
+            "n": 1660,
+            "power": 0.067
+          },
+          {
+            "label": "African ancestry",
+            "groupId": "afr",
+            "modelId": "stratified",
+            "n": 3320,
+            "power": 0.085
+          },
+          {
+            "label": "African ancestry",
+            "groupId": "afr",
+            "modelId": "stratified",
+            "n": 4980,
+            "power": 0.103
+          },
+          {
+            "label": "African ancestry",
+            "groupId": "afr",
+            "modelId": "stratified",
+            "n": 6640,
+            "power": 0.121
+          },
+          {
+            "label": "European ancestry",
+            "groupId": "eur",
+            "modelId": "stratified",
+            "n": 17000,
+            "power": 1.0
+          },
+          {
+            "label": "European ancestry",
+            "groupId": "eur",
+            "modelId": "stratified",
+            "n": 34000,
+            "power": 1.0
+          },
+          {
+            "label": "European ancestry",
+            "groupId": "eur",
+            "modelId": "stratified",
+            "n": 51000,
+            "power": 1.0
+          },
+          {
+            "label": "European ancestry",
+            "groupId": "eur",
+            "modelId": "stratified",
+            "n": 68000,
+            "power": 1.0
+          },
+          {
+            "label": "Admixed American ancestry",
+            "groupId": "amr",
+            "modelId": "stratified",
+            "n": 1340,
+            "power": 0.432
+          },
+          {
+            "label": "Admixed American ancestry",
+            "groupId": "amr",
+            "modelId": "stratified",
+            "n": 2680,
+            "power": 0.715
+          },
+          {
+            "label": "Admixed American ancestry",
+            "groupId": "amr",
+            "modelId": "stratified",
+            "n": 4020,
+            "power": 0.872
+          },
+          {
+            "label": "Admixed American ancestry",
+            "groupId": "amr",
+            "modelId": "stratified",
+            "n": 5360,
+            "power": 0.947
+          }
+        ],
+        "90": [
+          {
+            "label": "Pooled",
+            "modelId": "pooled",
+            "n": 5000,
+            "power": 0.987
+          },
+          {
+            "label": "Pooled",
+            "modelId": "pooled",
+            "n": 10000,
+            "power": 1.0
+          },
+          {
+            "label": "Pooled",
+            "modelId": "pooled",
+            "n": 20000,
+            "power": 1.0
+          },
+          {
+            "label": "Pooled",
+            "modelId": "pooled",
+            "n": 40000,
+            "power": 1.0
+          },
+          {
+            "label": "Pooled",
+            "modelId": "pooled",
+            "n": 80000,
+            "power": 1.0
+          },
+          {
+            "label": "African ancestry",
+            "groupId": "afr",
+            "modelId": "stratified",
+            "n": 1105,
+            "power": 0.062
+          },
+          {
+            "label": "African ancestry",
+            "groupId": "afr",
+            "modelId": "stratified",
+            "n": 2210,
+            "power": 0.073
+          },
+          {
+            "label": "African ancestry",
+            "groupId": "afr",
+            "modelId": "stratified",
+            "n": 3315,
+            "power": 0.085
+          },
+          {
+            "label": "African ancestry",
+            "groupId": "afr",
+            "modelId": "stratified",
+            "n": 4420,
+            "power": 0.097
+          },
+          {
+            "label": "European ancestry",
+            "groupId": "eur",
+            "modelId": "stratified",
+            "n": 18000,
+            "power": 1.0
+          },
+          {
+            "label": "European ancestry",
+            "groupId": "eur",
+            "modelId": "stratified",
+            "n": 36000,
+            "power": 1.0
+          },
+          {
+            "label": "European ancestry",
+            "groupId": "eur",
+            "modelId": "stratified",
+            "n": 54000,
+            "power": 1.0
+          },
+          {
+            "label": "European ancestry",
+            "groupId": "eur",
+            "modelId": "stratified",
+            "n": 72000,
+            "power": 1.0
+          },
+          {
+            "label": "Admixed American ancestry",
+            "groupId": "amr",
+            "modelId": "stratified",
+            "n": 895,
+            "power": 0.309
+          },
+          {
+            "label": "Admixed American ancestry",
+            "groupId": "amr",
+            "modelId": "stratified",
+            "n": 1790,
+            "power": 0.543
+          },
+          {
+            "label": "Admixed American ancestry",
+            "groupId": "amr",
+            "modelId": "stratified",
+            "n": 2685,
+            "power": 0.716
+          },
+          {
+            "label": "Admixed American ancestry",
+            "groupId": "amr",
+            "modelId": "stratified",
+            "n": 3580,
+            "power": 0.832
+          }
+        ],
+        "95": [
+          {
+            "label": "Pooled",
+            "modelId": "pooled",
+            "n": 5000,
+            "power": 0.99
+          },
+          {
+            "label": "Pooled",
+            "modelId": "pooled",
+            "n": 10000,
+            "power": 1.0
+          },
+          {
+            "label": "Pooled",
+            "modelId": "pooled",
+            "n": 20000,
+            "power": 1.0
+          },
+          {
+            "label": "Pooled",
+            "modelId": "pooled",
+            "n": 40000,
+            "power": 1.0
+          },
+          {
+            "label": "Pooled",
+            "modelId": "pooled",
+            "n": 80000,
+            "power": 1.0
+          },
+          {
+            "label": "African ancestry",
+            "groupId": "afr",
+            "modelId": "stratified",
+            "n": 555,
+            "power": 0.056
+          },
+          {
+            "label": "African ancestry",
+            "groupId": "afr",
+            "modelId": "stratified",
+            "n": 1110,
+            "power": 0.062
+          },
+          {
+            "label": "African ancestry",
+            "groupId": "afr",
+            "modelId": "stratified",
+            "n": 1665,
+            "power": 0.067
+          },
+          {
+            "label": "African ancestry",
+            "groupId": "afr",
+            "modelId": "stratified",
+            "n": 2220,
+            "power": 0.073
+          },
+          {
+            "label": "European ancestry",
+            "groupId": "eur",
+            "modelId": "stratified",
+            "n": 19000,
+            "power": 1.0
+          },
+          {
+            "label": "European ancestry",
+            "groupId": "eur",
+            "modelId": "stratified",
+            "n": 38000,
+            "power": 1.0
+          },
+          {
+            "label": "European ancestry",
+            "groupId": "eur",
+            "modelId": "stratified",
+            "n": 57000,
+            "power": 1.0
+          },
+          {
+            "label": "European ancestry",
+            "groupId": "eur",
+            "modelId": "stratified",
+            "n": 76000,
+            "power": 1.0
+          },
+          {
+            "label": "Admixed American ancestry",
+            "groupId": "amr",
+            "modelId": "stratified",
+            "n": 445,
+            "power": 0.178
+          },
+          {
+            "label": "Admixed American ancestry",
+            "groupId": "amr",
+            "modelId": "stratified",
+            "n": 890,
+            "power": 0.308
+          },
+          {
+            "label": "Admixed American ancestry",
+            "groupId": "amr",
+            "modelId": "stratified",
+            "n": 1335,
+            "power": 0.431
+          },
+          {
+            "label": "Admixed American ancestry",
+            "groupId": "amr",
+            "modelId": "stratified",
+            "n": 1780,
+            "power": 0.54
+          }
+        ]
+      }
+    },
+    "discussionPrompts": [
+      "Which estimate would you report if the finding were to be applied in an African-ancestry clinic?",
+      "What would change if the underrepresented group had the largest sample size?"
+    ]
+  },
+  "provenance": {
+    "generator": "analysis/generate_scenarios.py",
+    "generatorVersion": "1.1.0",
+    "seed": 20260721,
+    "alpha": 0.05,
+    "realInputs": {
+      "alleleFrequencies": [
+        {
+          "rsid": "rs4988235",
+          "gene": "MCM6 / LCT",
+          "locus": "2q21.3",
+          "trait": "lactase persistence",
+          "source": "gnomAD v4; 1000 Genomes Phase 3",
+          "note": "Lactase persistence regulatory variant. Common in European ancestry and much rarer elsewhere, so a pooled analysis draws most of its information from one group while still reporting a single average effect."
+        }
+      ],
+      "ancestryDistribution": "All of Us Research Program, genomic data release v7 (~245,000 short-read whole genomes); ancestry proportions rounded to whole percent."
+    },
+    "syntheticInputs": [
+      "Group-specific effect sizes (0.02 African / 0.10 European / 0.07 Admixed American, phenotype SD per allele) are chosen to make the pooled-vs-stratified contrast legible; they are not published LCT effect estimates. Their direction follows the known biology: rs4988235 is the European lactase-persistence allele, and persistence in African populations is carried by other regulatory variants."
+    ],
+    "assumptions": [
+      "Additive dosage model, Hardy-Weinberg equilibrium, continuous phenotype standardised to unit variance.",
+      "The pooled estimator equals the inverse-variance-weighted combination of the group-specific effects under a common residual variance.",
+      "Two-sided Wald tests at alpha = 0.05 for a single pre-specified locus."
+    ],
+    "derived": "Standard errors, p-values, power, meta-analysis summaries, and heterogeneity statistics are computed from the inputs above by analysis/genetics.py; none are hand-entered."
+  }
+}

@@ -1,0 +1,1317 @@
+{
+  "schemaVersion": "0.2.0",
+  "scenarioId": "regularization-heterogeneity",
+  "title": "Polygenic Scores Across Ancestries",
+  "subtitle": "The headline metric is not the whole story",
+  "estimatedMinutes": 10,
+  "learningObjectives": [
+    "Compare a polygenic score trained on the pooled cohort with an ancestry-aware score on the metric each is judged by.",
+    "Interpret a small loss in global accuracy as the price of calibration in the smallest ancestry group.",
+    "Connect shrinkage strength to which score fails the smallest group first."
+  ],
+  "ancestryGroups": [
+    {
+      "id": "afr",
+      "label": "African ancestry",
+      "color": "#2563eb",
+      "n": 710
+    },
+    {
+      "id": "eur",
+      "label": "European ancestry",
+      "color": "#059669",
+      "n": 1820
+    },
+    {
+      "id": "amr",
+      "label": "Admixed American ancestry",
+      "color": "#b45309",
+      "n": 570
+    }
+  ],
+  "prediction": {
+    "pollId": "predict-regularization-heterogeneity",
+    "question": "Three polygenic scores are trained on a cohort that is 59% European, 23% African and 18% Admixed American ancestry. At the starting shrinkage, which score is best calibrated in the smallest ancestry group?",
+    "options": [
+      {
+        "id": "shared_sparse",
+        "label": "The pooled-cohort PRS"
+      },
+      {
+        "id": "group_aware",
+        "label": "The ancestry-aware PRS"
+      },
+      {
+        "id": "strong_regularization",
+        "label": "The pooled PRS under strong shrinkage"
+      },
+      {
+        "id": "tied",
+        "label": "They are equally calibrated"
+      }
+    ],
+    "correctOptionId": "group_aware"
+  },
+  "controls": [
+    {
+      "id": "modelId",
+      "label": "Polygenic score",
+      "type": "select",
+      "default": "shared_sparse",
+      "values": [
+        {
+          "value": "shared_sparse",
+          "label": "Pooled-cohort PRS"
+        },
+        {
+          "value": "group_aware",
+          "label": "Ancestry-aware PRS"
+        },
+        {
+          "value": "strong_regularization",
+          "label": "Pooled PRS, strong shrinkage"
+        }
+      ]
+    },
+    {
+      "id": "lambda",
+      "label": "Shrinkage (penalty)",
+      "type": "slider",
+      "default": 45,
+      "min": 5,
+      "max": 90,
+      "step": 5
+    }
+  ],
+  "alleleFrequencies": [],
+  "simulatedEffects": [
+    {
+      "variantId": "prsBlockA",
+      "groupId": "afr",
+      "beta": 0.4,
+      "mechanism": "Ancestry-specific true weight of variant block A"
+    },
+    {
+      "variantId": "prsBlockA",
+      "groupId": "eur",
+      "beta": 0.14,
+      "mechanism": "Ancestry-specific true weight of variant block A"
+    },
+    {
+      "variantId": "prsBlockA",
+      "groupId": "amr",
+      "beta": 0.31,
+      "mechanism": "Ancestry-specific true weight of variant block A"
+    }
+  ],
+  "associationResults": [
+    {
+      "modelId": "shared_sparse",
+      "variantId": "prsBlockA",
+      "groupId": "afr",
+      "beta": 0.073,
+      "se": 0.058,
+      "p": 0.2065126800601209
+    },
+    {
+      "modelId": "shared_sparse",
+      "variantId": "prsBlockA",
+      "groupId": "eur",
+      "beta": 0.073,
+      "se": 0.036,
+      "p": 0.04285813417644532
+    },
+    {
+      "modelId": "shared_sparse",
+      "variantId": "prsBlockA",
+      "groupId": "amr",
+      "beta": 0.073,
+      "se": 0.065,
+      "p": 0.2579501231433704
+    },
+    {
+      "modelId": "group_aware",
+      "variantId": "prsBlockA",
+      "groupId": "afr",
+      "beta": 0.239,
+      "se": 0.058,
+      "p": 3.8168360424189434e-05
+    },
+    {
+      "modelId": "group_aware",
+      "variantId": "prsBlockA",
+      "groupId": "eur",
+      "beta": 0.057,
+      "se": 0.036,
+      "p": 0.11539464040074209
+    },
+    {
+      "modelId": "group_aware",
+      "variantId": "prsBlockA",
+      "groupId": "amr",
+      "beta": 0.176,
+      "se": 0.065,
+      "p": 0.0066101912718879744
+    },
+    {
+      "modelId": "strong_regularization",
+      "variantId": "prsBlockA",
+      "groupId": "afr",
+      "beta": 0.058,
+      "se": 0.058,
+      "p": 0.3212903512989095
+    },
+    {
+      "modelId": "strong_regularization",
+      "variantId": "prsBlockA",
+      "groupId": "eur",
+      "beta": 0.058,
+      "se": 0.036,
+      "p": 0.11183563348146594
+    },
+    {
+      "modelId": "strong_regularization",
+      "variantId": "prsBlockA",
+      "groupId": "amr",
+      "beta": 0.058,
+      "se": 0.065,
+      "p": 0.3744338196011352
+    }
+  ],
+  "powerEstimates": [
+    {
+      "modelId": "shared_sparse",
+      "n": 3100,
+      "effectSize": 0.073,
+      "power": 0.753
+    },
+    {
+      "modelId": "group_aware",
+      "n": 3100,
+      "effectSize": 0.239,
+      "power": 1.0
+    },
+    {
+      "modelId": "strong_regularization",
+      "n": 3100,
+      "effectSize": 0.058,
+      "power": 0.546
+    }
+  ],
+  "modelPerformance": [
+    {
+      "modelId": "shared_sparse",
+      "metric": "r2",
+      "value": 0.285
+    },
+    {
+      "modelId": "group_aware",
+      "metric": "r2",
+      "value": 0.275
+    },
+    {
+      "modelId": "strong_regularization",
+      "metric": "r2",
+      "value": 0.285
+    }
+  ],
+  "interpretation": {
+    "prompt": "A polygenic score trained on the pooled multi-ancestry cohort reports the higher global R\u00b2. An ancestry-aware score is better calibrated in the smallest group. Which one is worse?",
+    "whatChanged": "The pooled-cohort PRS is trained on everyone at once, so its weights converge to the largest group's. The ancestry-aware PRS estimates each ancestry group's weights from that group's data and pays for the extra parameters in global R\u00b2. What it buys is calibration: in the smallest group it is far better calibrated than the pooled score at the same shrinkage. Raise the shrinkage and the pooled score's calibration collapses first, while the ancestry-aware score still holds when the pooled one has shrunk to nothing.",
+    "whyItMatters": "This is the multi-ancestry polygenic score result from the framing slides: the score trained on the pooled cohort wins on the headline metric for most groups and fails the group that made up a few percent of the training data. A single accuracy metric rewards fitting the largest group while under-serving smaller or heterogeneous ones, and it is built from pooled effect estimates like module 1's.",
+    "facilitatorNote": "This is the African-ancestry exception on the multi-ancestry PRS slide. Read the two panels against each other at the starting shrinkage: the ancestry-aware PRS looks slightly worse on global R\u00b2 and is markedly better for the smallest group. Then push the shrinkage to the maximum: the pooled score's weights go to zero while the ancestry-aware score is still predicting (switch the score select to see each one's weight path; the ancestry-aware path is drawn for the Admixed American ancestry group). A score chosen on the headline metric alone is the one that fails the smallest group first. The weight blocks are a three-block stand-in for a genome-wide weight vector, not named loci; say so if asked."
+  },
+  "vizSummaries": {
+    "performanceCards": {
+      "byControl": "lambda",
+      "values": {
+        "5": [
+          {
+            "label": "Pooled-cohort PRS",
+            "modelId": "shared_sparse",
+            "metric": "Global R\u00b2",
+            "value": 0.326
+          },
+          {
+            "label": "Ancestry-aware PRS",
+            "modelId": "group_aware",
+            "metric": "Global R\u00b2",
+            "value": 0.291
+          },
+          {
+            "label": "Pooled PRS, strong shrinkage",
+            "modelId": "strong_regularization",
+            "metric": "Global R\u00b2",
+            "value": 0.326
+          }
+        ],
+        "10": [
+          {
+            "label": "Pooled-cohort PRS",
+            "modelId": "shared_sparse",
+            "metric": "Global R\u00b2",
+            "value": 0.326
+          },
+          {
+            "label": "Ancestry-aware PRS",
+            "modelId": "group_aware",
+            "metric": "Global R\u00b2",
+            "value": 0.292
+          },
+          {
+            "label": "Pooled PRS, strong shrinkage",
+            "modelId": "strong_regularization",
+            "metric": "Global R\u00b2",
+            "value": 0.326
+          }
+        ],
+        "15": [
+          {
+            "label": "Pooled-cohort PRS",
+            "modelId": "shared_sparse",
+            "metric": "Global R\u00b2",
+            "value": 0.326
+          },
+          {
+            "label": "Ancestry-aware PRS",
+            "modelId": "group_aware",
+            "metric": "Global R\u00b2",
+            "value": 0.292
+          },
+          {
+            "label": "Pooled PRS, strong shrinkage",
+            "modelId": "strong_regularization",
+            "metric": "Global R\u00b2",
+            "value": 0.325
+          }
+        ],
+        "20": [
+          {
+            "label": "Pooled-cohort PRS",
+            "modelId": "shared_sparse",
+            "metric": "Global R\u00b2",
+            "value": 0.324
+          },
+          {
+            "label": "Ancestry-aware PRS",
+            "modelId": "group_aware",
+            "metric": "Global R\u00b2",
+            "value": 0.292
+          },
+          {
+            "label": "Pooled PRS, strong shrinkage",
+            "modelId": "strong_regularization",
+            "metric": "Global R\u00b2",
+            "value": 0.324
+          }
+        ],
+        "25": [
+          {
+            "label": "Pooled-cohort PRS",
+            "modelId": "shared_sparse",
+            "metric": "Global R\u00b2",
+            "value": 0.322
+          },
+          {
+            "label": "Ancestry-aware PRS",
+            "modelId": "group_aware",
+            "metric": "Global R\u00b2",
+            "value": 0.291
+          },
+          {
+            "label": "Pooled PRS, strong shrinkage",
+            "modelId": "strong_regularization",
+            "metric": "Global R\u00b2",
+            "value": 0.32
+          }
+        ],
+        "30": [
+          {
+            "label": "Pooled-cohort PRS",
+            "modelId": "shared_sparse",
+            "metric": "Global R\u00b2",
+            "value": 0.317
+          },
+          {
+            "label": "Ancestry-aware PRS",
+            "modelId": "group_aware",
+            "metric": "Global R\u00b2",
+            "value": 0.289
+          },
+          {
+            "label": "Pooled PRS, strong shrinkage",
+            "modelId": "strong_regularization",
+            "metric": "Global R\u00b2",
+            "value": 0.312
+          }
+        ],
+        "35": [
+          {
+            "label": "Pooled-cohort PRS",
+            "modelId": "shared_sparse",
+            "metric": "Global R\u00b2",
+            "value": 0.308
+          },
+          {
+            "label": "Ancestry-aware PRS",
+            "modelId": "group_aware",
+            "metric": "Global R\u00b2",
+            "value": 0.286
+          },
+          {
+            "label": "Pooled PRS, strong shrinkage",
+            "modelId": "strong_regularization",
+            "metric": "Global R\u00b2",
+            "value": 0.297
+          }
+        ],
+        "40": [
+          {
+            "label": "Pooled-cohort PRS",
+            "modelId": "shared_sparse",
+            "metric": "Global R\u00b2",
+            "value": 0.29
+          },
+          {
+            "label": "Ancestry-aware PRS",
+            "modelId": "group_aware",
+            "metric": "Global R\u00b2",
+            "value": 0.281
+          },
+          {
+            "label": "Pooled PRS, strong shrinkage",
+            "modelId": "strong_regularization",
+            "metric": "Global R\u00b2",
+            "value": 0.285
+          }
+        ],
+        "45": [
+          {
+            "label": "Pooled-cohort PRS",
+            "modelId": "shared_sparse",
+            "metric": "Global R\u00b2",
+            "value": 0.285
+          },
+          {
+            "label": "Ancestry-aware PRS",
+            "modelId": "group_aware",
+            "metric": "Global R\u00b2",
+            "value": 0.275
+          },
+          {
+            "label": "Pooled PRS, strong shrinkage",
+            "modelId": "strong_regularization",
+            "metric": "Global R\u00b2",
+            "value": 0.285
+          }
+        ],
+        "50": [
+          {
+            "label": "Pooled-cohort PRS",
+            "modelId": "shared_sparse",
+            "metric": "Global R\u00b2",
+            "value": 0.284
+          },
+          {
+            "label": "Ancestry-aware PRS",
+            "modelId": "group_aware",
+            "metric": "Global R\u00b2",
+            "value": 0.271
+          },
+          {
+            "label": "Pooled PRS, strong shrinkage",
+            "modelId": "strong_regularization",
+            "metric": "Global R\u00b2",
+            "value": 0.282
+          }
+        ],
+        "55": [
+          {
+            "label": "Pooled-cohort PRS",
+            "modelId": "shared_sparse",
+            "metric": "Global R\u00b2",
+            "value": 0.282
+          },
+          {
+            "label": "Ancestry-aware PRS",
+            "modelId": "group_aware",
+            "metric": "Global R\u00b2",
+            "value": 0.266
+          },
+          {
+            "label": "Pooled PRS, strong shrinkage",
+            "modelId": "strong_regularization",
+            "metric": "Global R\u00b2",
+            "value": 0.268
+          }
+        ],
+        "60": [
+          {
+            "label": "Pooled-cohort PRS",
+            "modelId": "shared_sparse",
+            "metric": "Global R\u00b2",
+            "value": 0.271
+          },
+          {
+            "label": "Ancestry-aware PRS",
+            "modelId": "group_aware",
+            "metric": "Global R\u00b2",
+            "value": 0.258
+          },
+          {
+            "label": "Pooled PRS, strong shrinkage",
+            "modelId": "strong_regularization",
+            "metric": "Global R\u00b2",
+            "value": 0.19
+          }
+        ],
+        "65": [
+          {
+            "label": "Pooled-cohort PRS",
+            "modelId": "shared_sparse",
+            "metric": "Global R\u00b2",
+            "value": 0.216
+          },
+          {
+            "label": "Ancestry-aware PRS",
+            "modelId": "group_aware",
+            "metric": "Global R\u00b2",
+            "value": 0.245
+          },
+          {
+            "label": "Pooled PRS, strong shrinkage",
+            "modelId": "strong_regularization",
+            "metric": "Global R\u00b2",
+            "value": 0.19
+          }
+        ],
+        "70": [
+          {
+            "label": "Pooled-cohort PRS",
+            "modelId": "shared_sparse",
+            "metric": "Global R\u00b2",
+            "value": 0.19
+          },
+          {
+            "label": "Ancestry-aware PRS",
+            "modelId": "group_aware",
+            "metric": "Global R\u00b2",
+            "value": 0.234
+          },
+          {
+            "label": "Pooled PRS, strong shrinkage",
+            "modelId": "strong_regularization",
+            "metric": "Global R\u00b2",
+            "value": 0.0
+          }
+        ],
+        "75": [
+          {
+            "label": "Pooled-cohort PRS",
+            "modelId": "shared_sparse",
+            "metric": "Global R\u00b2",
+            "value": 0.0
+          },
+          {
+            "label": "Ancestry-aware PRS",
+            "modelId": "group_aware",
+            "metric": "Global R\u00b2",
+            "value": 0.231
+          },
+          {
+            "label": "Pooled PRS, strong shrinkage",
+            "modelId": "strong_regularization",
+            "metric": "Global R\u00b2",
+            "value": 0.0
+          }
+        ],
+        "80": [
+          {
+            "label": "Pooled-cohort PRS",
+            "modelId": "shared_sparse",
+            "metric": "Global R\u00b2",
+            "value": 0.0
+          },
+          {
+            "label": "Ancestry-aware PRS",
+            "modelId": "group_aware",
+            "metric": "Global R\u00b2",
+            "value": 0.226
+          },
+          {
+            "label": "Pooled PRS, strong shrinkage",
+            "modelId": "strong_regularization",
+            "metric": "Global R\u00b2",
+            "value": 0.0
+          }
+        ],
+        "85": [
+          {
+            "label": "Pooled-cohort PRS",
+            "modelId": "shared_sparse",
+            "metric": "Global R\u00b2",
+            "value": 0.0
+          },
+          {
+            "label": "Ancestry-aware PRS",
+            "modelId": "group_aware",
+            "metric": "Global R\u00b2",
+            "value": 0.219
+          },
+          {
+            "label": "Pooled PRS, strong shrinkage",
+            "modelId": "strong_regularization",
+            "metric": "Global R\u00b2",
+            "value": 0.0
+          }
+        ],
+        "90": [
+          {
+            "label": "Pooled-cohort PRS",
+            "modelId": "shared_sparse",
+            "metric": "Global R\u00b2",
+            "value": 0.0
+          },
+          {
+            "label": "Ancestry-aware PRS",
+            "modelId": "group_aware",
+            "metric": "Global R\u00b2",
+            "value": 0.212
+          },
+          {
+            "label": "Pooled PRS, strong shrinkage",
+            "modelId": "strong_regularization",
+            "metric": "Global R\u00b2",
+            "value": 0.0
+          }
+        ]
+      }
+    },
+    "calibration": {
+      "byControl": "lambda",
+      "values": {
+        "5": [
+          {
+            "label": "African ancestry",
+            "shared_sparse": 0.738,
+            "group_aware": 0.87,
+            "strong_regularization": 0.733
+          },
+          {
+            "label": "European ancestry",
+            "shared_sparse": 0.951,
+            "group_aware": 0.963,
+            "strong_regularization": 0.959
+          },
+          {
+            "label": "Admixed American ancestry",
+            "shared_sparse": 0.848,
+            "group_aware": 0.918,
+            "strong_regularization": 0.841
+          }
+        ],
+        "10": [
+          {
+            "label": "African ancestry",
+            "shared_sparse": 0.68,
+            "group_aware": 0.829,
+            "strong_regularization": 0.669
+          },
+          {
+            "label": "European ancestry",
+            "shared_sparse": 0.959,
+            "group_aware": 0.905,
+            "strong_regularization": 0.941
+          },
+          {
+            "label": "Admixed American ancestry",
+            "shared_sparse": 0.778,
+            "group_aware": 0.868,
+            "strong_regularization": 0.765
+          }
+        ],
+        "15": [
+          {
+            "label": "African ancestry",
+            "shared_sparse": 0.623,
+            "group_aware": 0.789,
+            "strong_regularization": 0.606
+          },
+          {
+            "label": "European ancestry",
+            "shared_sparse": 0.868,
+            "group_aware": 0.849,
+            "strong_regularization": 0.841
+          },
+          {
+            "label": "Admixed American ancestry",
+            "shared_sparse": 0.709,
+            "group_aware": 0.819,
+            "strong_regularization": 0.689
+          }
+        ],
+        "20": [
+          {
+            "label": "African ancestry",
+            "shared_sparse": 0.567,
+            "group_aware": 0.749,
+            "strong_regularization": 0.546
+          },
+          {
+            "label": "European ancestry",
+            "shared_sparse": 0.779,
+            "group_aware": 0.795,
+            "strong_regularization": 0.743
+          },
+          {
+            "label": "Admixed American ancestry",
+            "shared_sparse": 0.642,
+            "group_aware": 0.77,
+            "strong_regularization": 0.615
+          }
+        ],
+        "25": [
+          {
+            "label": "African ancestry",
+            "shared_sparse": 0.514,
+            "group_aware": 0.709,
+            "strong_regularization": 0.488
+          },
+          {
+            "label": "European ancestry",
+            "shared_sparse": 0.691,
+            "group_aware": 0.742,
+            "strong_regularization": 0.649
+          },
+          {
+            "label": "Admixed American ancestry",
+            "shared_sparse": 0.576,
+            "group_aware": 0.722,
+            "strong_regularization": 0.544
+          }
+        ],
+        "30": [
+          {
+            "label": "African ancestry",
+            "shared_sparse": 0.463,
+            "group_aware": 0.669,
+            "strong_regularization": 0.434
+          },
+          {
+            "label": "European ancestry",
+            "shared_sparse": 0.608,
+            "group_aware": 0.693,
+            "strong_regularization": 0.56
+          },
+          {
+            "label": "Admixed American ancestry",
+            "shared_sparse": 0.514,
+            "group_aware": 0.674,
+            "strong_regularization": 0.478
+          }
+        ],
+        "35": [
+          {
+            "label": "African ancestry",
+            "shared_sparse": 0.417,
+            "group_aware": 0.631,
+            "strong_regularization": 0.389
+          },
+          {
+            "label": "European ancestry",
+            "shared_sparse": 0.529,
+            "group_aware": 0.647,
+            "strong_regularization": 0.478
+          },
+          {
+            "label": "Admixed American ancestry",
+            "shared_sparse": 0.455,
+            "group_aware": 0.627,
+            "strong_regularization": 0.419
+          }
+        ],
+        "40": [
+          {
+            "label": "African ancestry",
+            "shared_sparse": 0.379,
+            "group_aware": 0.593,
+            "strong_regularization": 0.337
+          },
+          {
+            "label": "European ancestry",
+            "shared_sparse": 0.458,
+            "group_aware": 0.606,
+            "strong_regularization": 0.398
+          },
+          {
+            "label": "Admixed American ancestry",
+            "shared_sparse": 0.405,
+            "group_aware": 0.581,
+            "strong_regularization": 0.357
+          }
+        ],
+        "45": [
+          {
+            "label": "African ancestry",
+            "shared_sparse": 0.326,
+            "group_aware": 0.555,
+            "strong_regularization": 0.274
+          },
+          {
+            "label": "European ancestry",
+            "shared_sparse": 0.382,
+            "group_aware": 0.566,
+            "strong_regularization": 0.313
+          },
+          {
+            "label": "Admixed American ancestry",
+            "shared_sparse": 0.345,
+            "group_aware": 0.537,
+            "strong_regularization": 0.287
+          }
+        ],
+        "50": [
+          {
+            "label": "African ancestry",
+            "shared_sparse": 0.268,
+            "group_aware": 0.519,
+            "strong_regularization": 0.212
+          },
+          {
+            "label": "European ancestry",
+            "shared_sparse": 0.305,
+            "group_aware": 0.524,
+            "strong_regularization": 0.23
+          },
+          {
+            "label": "Admixed American ancestry",
+            "shared_sparse": 0.281,
+            "group_aware": 0.494,
+            "strong_regularization": 0.218
+          }
+        ],
+        "55": [
+          {
+            "label": "African ancestry",
+            "shared_sparse": 0.212,
+            "group_aware": 0.484,
+            "strong_regularization": 0.156
+          },
+          {
+            "label": "European ancestry",
+            "shared_sparse": 0.23,
+            "group_aware": 0.484,
+            "strong_regularization": 0.151
+          },
+          {
+            "label": "Admixed American ancestry",
+            "shared_sparse": 0.218,
+            "group_aware": 0.453,
+            "strong_regularization": 0.155
+          }
+        ],
+        "60": [
+          {
+            "label": "African ancestry",
+            "shared_sparse": 0.161,
+            "group_aware": 0.451,
+            "strong_regularization": 0.149
+          },
+          {
+            "label": "European ancestry",
+            "shared_sparse": 0.158,
+            "group_aware": 0.447,
+            "strong_regularization": 0.089
+          },
+          {
+            "label": "Admixed American ancestry",
+            "shared_sparse": 0.16,
+            "group_aware": 0.416,
+            "strong_regularization": 0.122
+          }
+        ],
+        "65": [
+          {
+            "label": "African ancestry",
+            "shared_sparse": 0.137,
+            "group_aware": 0.419,
+            "strong_regularization": 0.042
+          },
+          {
+            "label": "European ancestry",
+            "shared_sparse": 0.097,
+            "group_aware": 0.417,
+            "strong_regularization": 0.025
+          },
+          {
+            "label": "Admixed American ancestry",
+            "shared_sparse": 0.121,
+            "group_aware": 0.383,
+            "strong_regularization": 0.034
+          }
+        ],
+        "70": [
+          {
+            "label": "African ancestry",
+            "shared_sparse": 0.071,
+            "group_aware": 0.391,
+            "strong_regularization": 0.0
+          },
+          {
+            "label": "European ancestry",
+            "shared_sparse": 0.043,
+            "group_aware": 0.386,
+            "strong_regularization": 0.0
+          },
+          {
+            "label": "Admixed American ancestry",
+            "shared_sparse": 0.058,
+            "group_aware": 0.344,
+            "strong_regularization": 0.0
+          }
+        ],
+        "75": [
+          {
+            "label": "African ancestry",
+            "shared_sparse": 0.0,
+            "group_aware": 0.366,
+            "strong_regularization": 0.0
+          },
+          {
+            "label": "European ancestry",
+            "shared_sparse": 0.0,
+            "group_aware": 0.345,
+            "strong_regularization": 0.0
+          },
+          {
+            "label": "Admixed American ancestry",
+            "shared_sparse": 0.0,
+            "group_aware": 0.302,
+            "strong_regularization": 0.0
+          }
+        ],
+        "80": [
+          {
+            "label": "African ancestry",
+            "shared_sparse": 0.0,
+            "group_aware": 0.347,
+            "strong_regularization": 0.0
+          },
+          {
+            "label": "European ancestry",
+            "shared_sparse": 0.0,
+            "group_aware": 0.304,
+            "strong_regularization": 0.0
+          },
+          {
+            "label": "Admixed American ancestry",
+            "shared_sparse": 0.0,
+            "group_aware": 0.263,
+            "strong_regularization": 0.0
+          }
+        ],
+        "85": [
+          {
+            "label": "African ancestry",
+            "shared_sparse": 0.0,
+            "group_aware": 0.332,
+            "strong_regularization": 0.0
+          },
+          {
+            "label": "European ancestry",
+            "shared_sparse": 0.0,
+            "group_aware": 0.264,
+            "strong_regularization": 0.0
+          },
+          {
+            "label": "Admixed American ancestry",
+            "shared_sparse": 0.0,
+            "group_aware": 0.226,
+            "strong_regularization": 0.0
+          }
+        ],
+        "90": [
+          {
+            "label": "African ancestry",
+            "shared_sparse": 0.0,
+            "group_aware": 0.315,
+            "strong_regularization": 0.0
+          },
+          {
+            "label": "European ancestry",
+            "shared_sparse": 0.0,
+            "group_aware": 0.223,
+            "strong_regularization": 0.0
+          },
+          {
+            "label": "Admixed American ancestry",
+            "shared_sparse": 0.0,
+            "group_aware": 0.195,
+            "strong_regularization": 0.0
+          }
+        ]
+      }
+    },
+    "coefficientPath": {
+      "byControl": "modelId",
+      "values": {
+        "shared_sparse": [
+          {
+            "lambda": 5,
+            "Weight block A": 0.213,
+            "Weight block B": 0.24,
+            "Weight block C": 0.126
+          },
+          {
+            "lambda": 10,
+            "Weight block A": 0.196,
+            "Weight block B": 0.223,
+            "Weight block C": 0.109
+          },
+          {
+            "lambda": 15,
+            "Weight block A": 0.178,
+            "Weight block B": 0.205,
+            "Weight block C": 0.091
+          },
+          {
+            "lambda": 20,
+            "Weight block A": 0.161,
+            "Weight block B": 0.188,
+            "Weight block C": 0.074
+          },
+          {
+            "lambda": 25,
+            "Weight block A": 0.143,
+            "Weight block B": 0.17,
+            "Weight block C": 0.056
+          },
+          {
+            "lambda": 30,
+            "Weight block A": 0.126,
+            "Weight block B": 0.153,
+            "Weight block C": 0.039
+          },
+          {
+            "lambda": 35,
+            "Weight block A": 0.108,
+            "Weight block B": 0.135,
+            "Weight block C": 0.021
+          },
+          {
+            "lambda": 40,
+            "Weight block A": 0.091,
+            "Weight block B": 0.118,
+            "Weight block C": 0.004
+          },
+          {
+            "lambda": 45,
+            "Weight block A": 0.073,
+            "Weight block B": 0.1,
+            "Weight block C": 0.0
+          },
+          {
+            "lambda": 50,
+            "Weight block A": 0.056,
+            "Weight block B": 0.083,
+            "Weight block C": 0.0
+          },
+          {
+            "lambda": 55,
+            "Weight block A": 0.038,
+            "Weight block B": 0.065,
+            "Weight block C": 0.0
+          },
+          {
+            "lambda": 60,
+            "Weight block A": 0.021,
+            "Weight block B": 0.048,
+            "Weight block C": 0.0
+          },
+          {
+            "lambda": 65,
+            "Weight block A": 0.003,
+            "Weight block B": 0.03,
+            "Weight block C": 0.0
+          },
+          {
+            "lambda": 70,
+            "Weight block A": 0.0,
+            "Weight block B": 0.013,
+            "Weight block C": 0.0
+          },
+          {
+            "lambda": 75,
+            "Weight block A": 0.0,
+            "Weight block B": 0.0,
+            "Weight block C": 0.0
+          },
+          {
+            "lambda": 80,
+            "Weight block A": 0.0,
+            "Weight block B": 0.0,
+            "Weight block C": 0.0
+          },
+          {
+            "lambda": 85,
+            "Weight block A": 0.0,
+            "Weight block B": 0.0,
+            "Weight block C": 0.0
+          },
+          {
+            "lambda": 90,
+            "Weight block A": 0.0,
+            "Weight block B": 0.0,
+            "Weight block C": 0.0
+          }
+        ],
+        "group_aware": [
+          {
+            "lambda": 5,
+            "Weight block A": 0.274,
+            "Weight block B": 0.219,
+            "Weight block C": 0.15
+          },
+          {
+            "lambda": 10,
+            "Weight block A": 0.262,
+            "Weight block B": 0.207,
+            "Weight block C": 0.138
+          },
+          {
+            "lambda": 15,
+            "Weight block A": 0.249,
+            "Weight block B": 0.195,
+            "Weight block C": 0.125
+          },
+          {
+            "lambda": 20,
+            "Weight block A": 0.237,
+            "Weight block B": 0.182,
+            "Weight block C": 0.113
+          },
+          {
+            "lambda": 25,
+            "Weight block A": 0.225,
+            "Weight block B": 0.17,
+            "Weight block C": 0.101
+          },
+          {
+            "lambda": 30,
+            "Weight block A": 0.213,
+            "Weight block B": 0.158,
+            "Weight block C": 0.089
+          },
+          {
+            "lambda": 35,
+            "Weight block A": 0.2,
+            "Weight block B": 0.146,
+            "Weight block C": 0.076
+          },
+          {
+            "lambda": 40,
+            "Weight block A": 0.188,
+            "Weight block B": 0.133,
+            "Weight block C": 0.064
+          },
+          {
+            "lambda": 45,
+            "Weight block A": 0.176,
+            "Weight block B": 0.121,
+            "Weight block C": 0.052
+          },
+          {
+            "lambda": 50,
+            "Weight block A": 0.164,
+            "Weight block B": 0.109,
+            "Weight block C": 0.04
+          },
+          {
+            "lambda": 55,
+            "Weight block A": 0.151,
+            "Weight block B": 0.097,
+            "Weight block C": 0.027
+          },
+          {
+            "lambda": 60,
+            "Weight block A": 0.139,
+            "Weight block B": 0.084,
+            "Weight block C": 0.015
+          },
+          {
+            "lambda": 65,
+            "Weight block A": 0.127,
+            "Weight block B": 0.072,
+            "Weight block C": 0.003
+          },
+          {
+            "lambda": 70,
+            "Weight block A": 0.115,
+            "Weight block B": 0.06,
+            "Weight block C": 0.0
+          },
+          {
+            "lambda": 75,
+            "Weight block A": 0.102,
+            "Weight block B": 0.048,
+            "Weight block C": 0.0
+          },
+          {
+            "lambda": 80,
+            "Weight block A": 0.09,
+            "Weight block B": 0.035,
+            "Weight block C": 0.0
+          },
+          {
+            "lambda": 85,
+            "Weight block A": 0.078,
+            "Weight block B": 0.023,
+            "Weight block C": 0.0
+          },
+          {
+            "lambda": 90,
+            "Weight block A": 0.066,
+            "Weight block B": 0.011,
+            "Weight block C": 0.0
+          }
+        ],
+        "strong_regularization": [
+          {
+            "lambda": 5,
+            "Weight block A": 0.212,
+            "Weight block B": 0.239,
+            "Weight block C": 0.124
+          },
+          {
+            "lambda": 10,
+            "Weight block A": 0.192,
+            "Weight block B": 0.219,
+            "Weight block C": 0.105
+          },
+          {
+            "lambda": 15,
+            "Weight block A": 0.173,
+            "Weight block B": 0.2,
+            "Weight block C": 0.086
+          },
+          {
+            "lambda": 20,
+            "Weight block A": 0.154,
+            "Weight block B": 0.181,
+            "Weight block C": 0.067
+          },
+          {
+            "lambda": 25,
+            "Weight block A": 0.135,
+            "Weight block B": 0.162,
+            "Weight block C": 0.047
+          },
+          {
+            "lambda": 30,
+            "Weight block A": 0.115,
+            "Weight block B": 0.142,
+            "Weight block C": 0.028
+          },
+          {
+            "lambda": 35,
+            "Weight block A": 0.096,
+            "Weight block B": 0.123,
+            "Weight block C": 0.009
+          },
+          {
+            "lambda": 40,
+            "Weight block A": 0.077,
+            "Weight block B": 0.104,
+            "Weight block C": 0.0
+          },
+          {
+            "lambda": 45,
+            "Weight block A": 0.058,
+            "Weight block B": 0.085,
+            "Weight block C": 0.0
+          },
+          {
+            "lambda": 50,
+            "Weight block A": 0.038,
+            "Weight block B": 0.065,
+            "Weight block C": 0.0
+          },
+          {
+            "lambda": 55,
+            "Weight block A": 0.019,
+            "Weight block B": 0.046,
+            "Weight block C": 0.0
+          },
+          {
+            "lambda": 60,
+            "Weight block A": 0.0,
+            "Weight block B": 0.027,
+            "Weight block C": 0.0
+          },
+          {
+            "lambda": 65,
+            "Weight block A": 0.0,
+            "Weight block B": 0.008,
+            "Weight block C": 0.0
+          },
+          {
+            "lambda": 70,
+            "Weight block A": 0.0,
+            "Weight block B": 0.0,
+            "Weight block C": 0.0
+          },
+          {
+            "lambda": 75,
+            "Weight block A": 0.0,
+            "Weight block B": 0.0,
+            "Weight block C": 0.0
+          },
+          {
+            "lambda": 80,
+            "Weight block A": 0.0,
+            "Weight block B": 0.0,
+            "Weight block C": 0.0
+          },
+          {
+            "lambda": 85,
+            "Weight block A": 0.0,
+            "Weight block B": 0.0,
+            "Weight block C": 0.0
+          },
+          {
+            "lambda": 90,
+            "Weight block A": 0.0,
+            "Weight block B": 0.0,
+            "Weight block C": 0.0
+          }
+        ]
+      }
+    },
+    "discussionPrompts": [
+      "Which metric would you choose if the score guides who gets screened?",
+      "When should lower global accuracy trigger deeper evaluation by ancestry group?",
+      "The pooled score was trained on a cohort that was a few percent African ancestry. What would you want reported before it is deployed in that group?"
+    ]
+  },
+  "provenance": {
+    "generator": "analysis/generate_scenarios.py",
+    "generatorVersion": "1.1.0",
+    "seed": 20260721,
+    "alpha": 0.05,
+    "realInputs": {
+      "alleleFrequencies": [],
+      "ancestryDistribution": "All of Us Research Program, genomic data release v7 (~245,000 short-read whole genomes); ancestry proportions rounded to whole percent."
+    },
+    "syntheticInputs": [
+      "The score is a three-block stand-in for a polygenic weight vector: each block is a set of variants whose true weights differ by ancestry (through LD, allele frequency, or effect size), with entirely synthetic weights.",
+      "A heritability ceiling of 0.36 caps achievable R\u00b2."
+    ],
+    "assumptions": [
+      "Shrinkage is modelled as lasso-style soft thresholding of the weight vector.",
+      "The pooled-cohort score converges to the sample-size-weighted average of the ancestry-specific weights; the ancestry-aware score shrinks toward that pooled solution rather than toward zero.",
+      "The ancestry-aware score pays an estimation cost for fitting each group separately: the signal it captures in a group is discounted by n / (n + 250), so its advantage is smallest exactly where the data are thinnest. This is why its global R\u00b2 sits below the shared model's while its subgroup calibration sits above it.",
+      "R\u00b2 is the achievable ceiling times the squared cosine similarity between fitted and true weights; calibration is the calibration slope mapped to (0, 1] via exp(-|log slope|)."
+    ],
+    "derived": "Standard errors, p-values, power, meta-analysis summaries, and heterogeneity statistics are computed from the inputs above by analysis/genetics.py; none are hand-entered."
+  }
+}

@@ -1,0 +1,162 @@
+name: Deploy
+
+# Tag-driven so the conference runs a named, reproducible build:
+#   git tag -a v1.0.0-ashg -m "ASHG 2026 workshop build" && git push origin v1.0.0-ashg
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  id-token: write # OIDC role assumption; no long-lived AWS keys exist for this repo.
+
+jobs:
+  deploy:
+    # Skipped, not failed, in a copy with no AWS stack behind it: the variables below are
+    # created by the deploy runbook (deploy/README.md), and a fork or the open-access repo
+    # has none of them.
+    if: vars.SITE_BUCKET != ''
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      # Never deploy a build that has not passed the same checks CI runs.
+      - run: npm run lint
+      - run: npm run validate:data
+      - run: npm run test
+
+      - name: Build the static site
+        env:
+          VITE_FACILITATOR_USERNAME: ${{ secrets.VITE_FACILITATOR_USERNAME }}
+          VITE_FACILITATOR_PASSWORD: ${{ secrets.VITE_FACILITATOR_PASSWORD }}
+          # The CloudFront URL. Same origin as /api/*, so no CORS is involved.
+          VITE_POLLING_API_URL: ${{ vars.SITE_URL }}
+        run: |
+          test -n "$VITE_FACILITATOR_USERNAME" || { echo "::error::VITE_FACILITATOR_USERNAME secret is unset; the facilitator view would fail closed."; exit 1; }
+          test -n "$VITE_FACILITATOR_PASSWORD" || { echo "::error::VITE_FACILITATOR_PASSWORD secret is unset; the facilitator view would fail closed."; exit 1; }
+          npm run build
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Package and ship the poll API
+        run: |
+          mkdir -p build/lambda
+          cp backend/polling/*.mjs build/lambda/
+          # The Lambda entry point is lambda.handler; give it its own package manifest so
+          # the .mjs modules resolve as ES modules in the Node 22 runtime.
+          echo '{"type":"module"}' > build/lambda/package.json
+          npm install --prefix build/lambda --omit=dev --no-save \
+            @aws-sdk/client-dynamodb @aws-sdk/lib-dynamodb
+          (cd build/lambda && zip -qr ../poll-api.zip .)
+          aws lambda update-function-code \
+            --function-name "${{ vars.POLL_FUNCTION_NAME }}" \
+            --zip-file fileb://build/poll-api.zip \
+            --publish >/dev/null
+          aws lambda wait function-updated \
+            --function-name "${{ vars.POLL_FUNCTION_NAME }}"
+
+      # Three passes, because the right cache lifetime differs per asset class. Vite
+      # filenames are content-hashed, so assets are immutable; index.html must not be, or
+      # a rollback during the session would not propagate.
+      - name: Upload the static site
+        run: |
+          aws s3 sync apps/web/dist "s3://${{ vars.SITE_BUCKET }}" \
+            --delete \
+            --exclude "index.html" \
+            --exclude "data/scenarios/*" \
+            --cache-control "public,max-age=31536000,immutable"
+
+          aws s3 sync apps/web/dist/data/scenarios "s3://${{ vars.SITE_BUCKET }}/data/scenarios" \
+            --delete \
+            --cache-control "public,max-age=86400"
+
+          aws s3 cp apps/web/dist/index.html "s3://${{ vars.SITE_BUCKET }}/index.html" \
+            --cache-control "no-cache"
+
+      - name: Invalidate the edge cache
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id "${{ vars.CLOUDFRONT_DISTRIBUTION_ID }}" \
+            --paths "/index.html" "/data/scenarios/*" >/dev/null
+
+      # A deploy that reports success while the poll API returns 403 is the failure mode
+      # worth catching here rather than in the room.
+      - name: Smoke check the deployment
+        env:
+          VITE_FACILITATOR_USERNAME: ${{ secrets.VITE_FACILITATOR_USERNAME }}
+          VITE_FACILITATOR_PASSWORD: ${{ secrets.VITE_FACILITATOR_PASSWORD }}
+        run: |
+          set -euo pipefail
+          site="${{ vars.SITE_URL }}"
+
+          echo "Checking $site"
+          curl --fail --silent --show-error --retry 5 --retry-delay 5 --retry-all-errors \
+            "$site/" | grep -q "<div id=\"root\">" \
+            || { echo "::error::index.html did not serve the app shell"; exit 1; }
+
+          echo "Checking $site/api/polls/analytic-practice"
+          poll=$(curl --fail --silent --show-error --retry 5 --retry-delay 5 --retry-all-errors \
+            "$site/api/polls/analytic-practice")
+          echo "$poll" | grep -q '"responseCount"' \
+            || { echo "::error::poll API did not return a snapshot: $poll"; exit 1; }
+
+          # The GET does not exercise payload signing. Behind OAC, Lambda rejects a POST
+          # without its body hash, so every vote could 403 while the check above is green.
+          # An unknown option id is rejected before any write: a 400 from the handler proves
+          # the signed write path reaches Lambda without casting a vote.
+          echo "Checking a signed POST reaches the handler"
+          body='{"optionId":"__smoke__"}'
+          hash=$(printf '%s' "$body" | sha256sum | cut -d' ' -f1)
+          status=$(curl --silent --show-error --retry 5 --retry-delay 5 \
+            --output "$RUNNER_TEMP/smoke-post.json" --write-out '%{http_code}' \
+            -X POST -H "content-type: application/json" -H "x-amz-content-sha256: $hash" \
+            --data "$body" "$site/api/polls/analytic-practice/responses")
+          test "$status" = "400" \
+            || { echo "::error::signed POST returned $status, expected 400 from the handler: $(cat "$RUNNER_TEMP/smoke-post.json")"; exit 1; }
+
+          # The two facilitator gates take their credential from different places — the edge
+          # gate from the stack's FacilitatorBasicAuth parameter, the in-app gate from the
+          # secrets above — and nothing but this check ties them together. When they drift the
+          # deploy stays green and the run sheet cannot be opened: the pair that clears the
+          # browser prompt is then rejected by the form behind it. Test the no-credential case
+          # first, or a missing edge function passes the pair check by admitting everything.
+          echo "Checking the facilitator gate rejects an anonymous request"
+          status=$(curl --silent --output /dev/null --write-out '%{http_code}' \
+            --retry 5 --retry-delay 5 --retry-all-errors "$site/facilitator")
+          test "$status" = "401" \
+            || { echo "::error::/facilitator returned $status without credentials, expected 401; the edge auth function is not in the request path"; exit 1; }
+
+          echo "Checking the edge gate accepts the pair baked into the bundle"
+          status=$(curl --silent --output /dev/null --write-out '%{http_code}' \
+            --retry 5 --retry-delay 5 --retry-all-errors \
+            -u "$VITE_FACILITATOR_USERNAME:$VITE_FACILITATOR_PASSWORD" "$site/facilitator")
+          test "$status" = "200" \
+            || { echo "::error::edge gate returned $status for the facilitator pair compiled into this build; FacilitatorBasicAuth in the stack does not match the VITE_FACILITATOR_* secrets. Redeploy the stack with the matching pair (deploy/README.md step 3)."; exit 1; }
+
+          echo "Deployment verified at $site"
+
+      - name: Summarise
+        run: |
+          {
+            echo "### Deployed"
+            echo ""
+            echo "- URL: ${{ vars.SITE_URL }}"
+            echo "- Ref: \`${{ github.ref_name }}\`"
+            echo "- Commit: \`${{ github.sha }}\`"
+          } >> "$GITHUB_STEP_SUMMARY"

@@ -1,0 +1,35 @@
+cff-version: 1.2.0
+title: >-
+  Modeling Choices in Omics: a browser-based decision lab for the ASHG 2026 workshop
+message: If you use or adapt this workshop platform, please cite it.
+type: software
+authors:
+  - family-names: Benjamin
+    given-names: Kynon J. M.
+    affiliation: Northwestern University Feinberg School of Medicine
+    orcid: https://orcid.org/0000-0003-2016-4646
+  - family-names: Perera
+    given-names: Minoli
+    affiliation: Department of Pharmacology, Northwestern University Feinberg School of Medicine
+    orcid: https://orcid.org/0000-0002-1146-2791
+repository-code: https://github.com/heart-gen/modeling-choices-omics-ashg2026
+abstract: >-
+  A no-code, browser-based educational platform for the ASHG 2026 workshop "Modeling
+  Choices in Omics: Implications for Health Disparities in Human Genetics." Participants
+  explore six precomputed synthetic genomics scenarios through interactive controls to see
+  how analytic decisions - pooled versus stratified analysis, within-ancestry testing
+  versus meta-analysis, global versus local ancestry modeling, model complexity,
+  regularization, and compute scalability - change biological inference in diverse and
+  admixed populations. All statistics are generated offline by a seeded Python generator
+  and carry a provenance record distinguishing real reference inputs from synthetic ones.
+keywords:
+  - human genetics
+  - health disparities
+  - genetic ancestry
+  - admixture
+  - statistical genetics
+  - research education
+  - ELSI
+license: MIT
+version: 2.0.0
+date-released: 2026-10-20

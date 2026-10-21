@@ -1,0 +1,4756 @@
+{
+  "schemaVersion": "0.2.0",
+  "scenarioId": "scalability-equity",
+  "title": "Scalable Inference and Who Can Afford It",
+  "subtitle": "The ancestry-aware analyses are the expensive ones",
+  "estimatedMinutes": 10,
+  "learningObjectives": [
+    "Relate model family to genome-wide compute cost.",
+    "Recognize that ancestry-aware models carry a multiplicative compute penalty.",
+    "Explain why access to accelerated compute is an equity issue in study design."
+  ],
+  "ancestryGroups": [],
+  "prediction": {
+    "pollId": "predict-scalability-equity",
+    "question": "Three genome-wide scans are queued on a Bridges-2 RM node (128 cores) for 8 million variants in 250,000 people: a standard GWAS scan, a local ancestry-aware scan (4x the work), and a permutation scan (ancestry interaction with 1,000 permutations, 4,000x). Which finish within one week?",
+    "options": [
+      {
+        "id": "all-three",
+        "label": "All three scans"
+      },
+      {
+        "id": "standard-and-local",
+        "label": "The standard GWAS scan and the local ancestry-aware scan, but not the permutation scan"
+      },
+      {
+        "id": "standard-only",
+        "label": "The standard GWAS scan only"
+      },
+      {
+        "id": "none",
+        "label": "None of them"
+      }
+    ],
+    "correctOptionId": "standard-and-local"
+  },
+  "controls": [
+    {
+      "id": "modelId",
+      "label": "Compute platform",
+      "type": "select",
+      "default": "cpu_single",
+      "values": [
+        {
+          "value": "laptop",
+          "label": "Laptop (8 cores)"
+        },
+        {
+          "value": "cpu_single",
+          "label": "Bridges-2 RM node (128 cores)"
+        },
+        {
+          "value": "cpu_cluster",
+          "label": "Bridges-2 RM, 20 nodes (2,560 cores)"
+        },
+        {
+          "value": "gpu",
+          "label": "Bridges-2 GPU node (8x H100-80GB)"
+        }
+      ]
+    },
+    {
+      "id": "variantCount",
+      "label": "Variants tested (millions)",
+      "type": "slider",
+      "default": 8,
+      "min": 2,
+      "max": 20,
+      "step": 2
+    }
+  ],
+  "alleleFrequencies": [],
+  "simulatedEffects": [],
+  "associationResults": [],
+  "powerEstimates": [],
+  "interpretation": {
+    "prompt": "If a local ancestry-aware genome-wide scan takes four times the compute of a standard GWAS, who decides whether it gets run?",
+    "whatChanged": "Switching platforms does not change any scientific conclusion. It changes which analyses are practical at all, and the ones it gates are precisely the ancestry-aware models from the earlier modules.",
+    "whyItMatters": "When the equity-improving analysis is also the expensive one, compute access silently determines whose biology gets discovered.",
+    "facilitatorNote": "Connect this back to module 3: the local ancestry interaction model that detected the MTHFR locus \u2014 the Tractor-style scan from the framing slides \u2014 is the one sitting in the infeasible column on a Bridges-2 node. Switch the platform to the laptop, which is what most of the room has, and slide the variant count up: the local ancestry-aware scan drops out of the week too. Then switch to the GPU node and read the allocation panel: it is faster *and* cheaper in service units, because a GPU-hour is 2 SU and a node-hour of 128 cores is 128. Bridges-2 is free to US researchers with an ACCESS allocation; the cloud panel is what the same run costs on a credit card. 'Who can afford it' is therefore mostly 'who has an allocation and the expertise to use it', which is the argument for accelerated frameworks and for training, made concrete."
+  },
+  "infoPanels": [
+    {
+      "title": "Where the prices come from",
+      "paragraphs": [
+        "Bridges-2 (Pittsburgh Supercomputing Center) is available at no cost for research and education through NSF ACCESS allocations, and at cost-recovery rates for other purposes; PSC publishes no hourly dollar rate. Its cost is charged in service units: 1 core-hour = 1 SU on a Regular Memory node (128 cores, two AMD EPYC 7742), and 2 SU per GPU-hour on an H100 node (8 GPUs, so 16 SU per node-hour). An ACCESS Explore allocation is 400,000 credits; ACCESS sets a credit at about one core-hour, and the exact credits-to-SU exchange for each system is read from the ACCESS credit calculator.",
+        "AWS and Google Cloud figures are on-demand list prices quoted on 2026-10-14 for the closest instance to each hardware class: AWS c7a.32xlarge (128 cores) $6.57/h, p5.48xlarge (8x H100) $55.04/h and c7a.2xlarge (8 cores) $0.41/h in us-east-1; Google Cloud c3d-standard-360 pro-rated to 128 physical cores $11.62/h, a3-highgpu-8g (8x H100) $87.83/h and c3d-standard-8 $0.36/h in us-central1. The 20-node class is twenty times the node. The laptop's figure is electricity (about 70 W at $0.17/kWh, $0.012/h).",
+        "These are estimates of shape, not invoices: no reserved, spot or committed-use discounts; no storage, data transfer, software or staff time; and the throughput figures are order-of-magnitude illustrations rather than benchmarks of a specific package. Any real run will cost a different number; the ratios between scans and between platforms are what the module is about."
+      ]
+    }
+  ],
+  "vizSummaries": {
+    "runtimeCurve": {
+      "byControl": "variantCount",
+      "values": {
+        "2": [
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "hours": 4.63
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "hours": 18.52
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "hours": 18518.52
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "hours": 0.278
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "hours": 1.11
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "hours": 1111.11
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "hours": 0.0139
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "hours": 0.0556
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "hours": 55.56
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "hours": 0.000694
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "hours": 0.00278
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "hours": 2.78
+          }
+        ],
+        "4": [
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "hours": 9.26
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "hours": 37.04
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "hours": 37037.04
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "hours": 0.556
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "hours": 2.22
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "hours": 2222.22
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "hours": 0.0278
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "hours": 0.111
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "hours": 111.11
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "hours": 0.00139
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "hours": 0.00556
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "hours": 5.56
+          }
+        ],
+        "6": [
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "hours": 13.89
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "hours": 55.56
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "hours": 55555.56
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "hours": 0.833
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "hours": 3.33
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "hours": 3333.33
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "hours": 0.0417
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "hours": 0.167
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "hours": 166.67
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "hours": 0.00208
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "hours": 0.00833
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "hours": 8.33
+          }
+        ],
+        "8": [
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "hours": 18.52
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "hours": 74.07
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "hours": 74074.07
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "hours": 1.11
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "hours": 4.44
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "hours": 4444.44
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "hours": 0.0556
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "hours": 0.222
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "hours": 222.22
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "hours": 0.00278
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "hours": 0.0111
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "hours": 11.11
+          }
+        ],
+        "10": [
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "hours": 23.15
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "hours": 92.59
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "hours": 92592.59
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "hours": 1.39
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "hours": 5.56
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "hours": 5555.56
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "hours": 0.0694
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "hours": 0.278
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "hours": 277.78
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "hours": 0.00347
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "hours": 0.0139
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "hours": 13.89
+          }
+        ],
+        "12": [
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "hours": 27.78
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "hours": 111.11
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "hours": 111111.11
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "hours": 1.67
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "hours": 6.67
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "hours": 6666.67
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "hours": 0.0833
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "hours": 0.333
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "hours": 333.33
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "hours": 0.00417
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "hours": 0.0167
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "hours": 16.67
+          }
+        ],
+        "14": [
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "hours": 32.41
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "hours": 129.63
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "hours": 129629.63
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "hours": 1.94
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "hours": 7.78
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "hours": 7777.78
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "hours": 0.0972
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "hours": 0.389
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "hours": 388.89
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "hours": 0.00486
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "hours": 0.0194
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "hours": 19.44
+          }
+        ],
+        "16": [
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "hours": 37.04
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "hours": 148.15
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "hours": 148148.15
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "hours": 2.22
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "hours": 8.89
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "hours": 8888.89
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "hours": 0.111
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "hours": 0.444
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "hours": 444.44
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "hours": 0.00556
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "hours": 0.0222
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "hours": 22.22
+          }
+        ],
+        "18": [
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "hours": 41.67
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "hours": 166.67
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "hours": 166666.67
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "hours": 2.5
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "hours": 10.0
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "hours": 10000.0
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "hours": 0.125
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "hours": 0.5
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "hours": 500.0
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "hours": 0.00625
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "hours": 0.025
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "hours": 25.0
+          }
+        ],
+        "20": [
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "hours": 46.3
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "hours": 185.19
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "hours": 185185.19
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "hours": 2.78
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "hours": 11.11
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "hours": 11111.11
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "hours": 0.139
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "hours": 0.556
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "hours": 555.56
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "hours": 0.00694
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "hours": 0.0278
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "hours": 27.78
+          }
+        ]
+      }
+    },
+    "costCurve": {
+      "byControl": "variantCount",
+      "values": {
+        "2": [
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "electricity",
+            "providerLabel": "Electricity (~70 W at $0.17/kWh)",
+            "instance": "8-core laptop under load",
+            "usd": 0.0556
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "c7a.2xlarge, 8 cores",
+            "usd": 1.9
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "c3d-standard-8, 8 vCPU",
+            "usd": 1.68
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "electricity",
+            "providerLabel": "Electricity (~70 W at $0.17/kWh)",
+            "instance": "8-core laptop under load",
+            "usd": 0.222
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "c7a.2xlarge, 8 cores",
+            "usd": 7.6
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "c3d-standard-8, 8 vCPU",
+            "usd": 6.73
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "electricity",
+            "providerLabel": "Electricity (~70 W at $0.17/kWh)",
+            "instance": "8-core laptop under load",
+            "usd": 222.22
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "c7a.2xlarge, 8 cores",
+            "usd": 7602.96
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "c3d-standard-8, 8 vCPU",
+            "usd": 6725.93
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "c7a.32xlarge, 128 cores",
+            "usd": 1.82
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "c3d-standard-360 pro-rated to 128 cores",
+            "usd": 3.23
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "c7a.32xlarge, 128 cores",
+            "usd": 7.3
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "c3d-standard-360 pro-rated to 128 cores",
+            "usd": 12.91
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "c7a.32xlarge, 128 cores",
+            "usd": 7298.84
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "c3d-standard-360 pro-rated to 128 cores",
+            "usd": 12913.44
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "20 x c7a.32xlarge",
+            "usd": 1.82
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "20 x c3d-standard-360 pro-rated to 128 cores",
+            "usd": 3.23
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "20 x c7a.32xlarge",
+            "usd": 7.3
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "20 x c3d-standard-360 pro-rated to 128 cores",
+            "usd": 12.91
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "20 x c7a.32xlarge",
+            "usd": 7298.84
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "20 x c3d-standard-360 pro-rated to 128 cores",
+            "usd": 12913.46
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "p5.48xlarge, 8x H100",
+            "usd": 0.0382
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "a3-highgpu-8g, 8x H100",
+            "usd": 0.061
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "p5.48xlarge, 8x H100",
+            "usd": 0.153
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "a3-highgpu-8g, 8x H100",
+            "usd": 0.244
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "p5.48xlarge, 8x H100",
+            "usd": 152.89
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "a3-highgpu-8g, 8x H100",
+            "usd": 243.98
+          }
+        ],
+        "4": [
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "electricity",
+            "providerLabel": "Electricity (~70 W at $0.17/kWh)",
+            "instance": "8-core laptop under load",
+            "usd": 0.111
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "c7a.2xlarge, 8 cores",
+            "usd": 3.8
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "c3d-standard-8, 8 vCPU",
+            "usd": 3.36
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "electricity",
+            "providerLabel": "Electricity (~70 W at $0.17/kWh)",
+            "instance": "8-core laptop under load",
+            "usd": 0.444
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "c7a.2xlarge, 8 cores",
+            "usd": 15.21
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "c3d-standard-8, 8 vCPU",
+            "usd": 13.45
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "electricity",
+            "providerLabel": "Electricity (~70 W at $0.17/kWh)",
+            "instance": "8-core laptop under load",
+            "usd": 444.44
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "c7a.2xlarge, 8 cores",
+            "usd": 15205.93
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "c3d-standard-8, 8 vCPU",
+            "usd": 13451.85
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "c7a.32xlarge, 128 cores",
+            "usd": 3.65
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "c3d-standard-360 pro-rated to 128 cores",
+            "usd": 6.46
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "c7a.32xlarge, 128 cores",
+            "usd": 14.6
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "c3d-standard-360 pro-rated to 128 cores",
+            "usd": 25.83
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "c7a.32xlarge, 128 cores",
+            "usd": 14597.69
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "c3d-standard-360 pro-rated to 128 cores",
+            "usd": 25826.89
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "20 x c7a.32xlarge",
+            "usd": 3.65
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "20 x c3d-standard-360 pro-rated to 128 cores",
+            "usd": 6.46
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "20 x c7a.32xlarge",
+            "usd": 14.6
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "20 x c3d-standard-360 pro-rated to 128 cores",
+            "usd": 25.83
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "20 x c7a.32xlarge",
+            "usd": 14597.69
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "20 x c3d-standard-360 pro-rated to 128 cores",
+            "usd": 25826.92
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "p5.48xlarge, 8x H100",
+            "usd": 0.0764
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "a3-highgpu-8g, 8x H100",
+            "usd": 0.122
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "p5.48xlarge, 8x H100",
+            "usd": 0.306
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "a3-highgpu-8g, 8x H100",
+            "usd": 0.488
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "p5.48xlarge, 8x H100",
+            "usd": 305.78
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "a3-highgpu-8g, 8x H100",
+            "usd": 487.96
+          }
+        ],
+        "6": [
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "electricity",
+            "providerLabel": "Electricity (~70 W at $0.17/kWh)",
+            "instance": "8-core laptop under load",
+            "usd": 0.167
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "c7a.2xlarge, 8 cores",
+            "usd": 5.7
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "c3d-standard-8, 8 vCPU",
+            "usd": 5.04
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "electricity",
+            "providerLabel": "Electricity (~70 W at $0.17/kWh)",
+            "instance": "8-core laptop under load",
+            "usd": 0.667
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "c7a.2xlarge, 8 cores",
+            "usd": 22.81
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "c3d-standard-8, 8 vCPU",
+            "usd": 20.18
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "electricity",
+            "providerLabel": "Electricity (~70 W at $0.17/kWh)",
+            "instance": "8-core laptop under load",
+            "usd": 666.67
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "c7a.2xlarge, 8 cores",
+            "usd": 22808.89
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "c3d-standard-8, 8 vCPU",
+            "usd": 20177.78
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "c7a.32xlarge, 128 cores",
+            "usd": 5.47
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "c3d-standard-360 pro-rated to 128 cores",
+            "usd": 9.69
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "c7a.32xlarge, 128 cores",
+            "usd": 21.9
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "c3d-standard-360 pro-rated to 128 cores",
+            "usd": 38.74
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "c7a.32xlarge, 128 cores",
+            "usd": 21896.53
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "c3d-standard-360 pro-rated to 128 cores",
+            "usd": 38740.33
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "20 x c7a.32xlarge",
+            "usd": 5.47
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "20 x c3d-standard-360 pro-rated to 128 cores",
+            "usd": 9.69
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "20 x c7a.32xlarge",
+            "usd": 21.9
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "20 x c3d-standard-360 pro-rated to 128 cores",
+            "usd": 38.74
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "20 x c7a.32xlarge",
+            "usd": 21896.53
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "20 x c3d-standard-360 pro-rated to 128 cores",
+            "usd": 38740.38
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "p5.48xlarge, 8x H100",
+            "usd": 0.115
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "a3-highgpu-8g, 8x H100",
+            "usd": 0.183
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "p5.48xlarge, 8x H100",
+            "usd": 0.459
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "a3-highgpu-8g, 8x H100",
+            "usd": 0.732
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "p5.48xlarge, 8x H100",
+            "usd": 458.67
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "a3-highgpu-8g, 8x H100",
+            "usd": 731.94
+          }
+        ],
+        "8": [
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "electricity",
+            "providerLabel": "Electricity (~70 W at $0.17/kWh)",
+            "instance": "8-core laptop under load",
+            "usd": 0.222
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "c7a.2xlarge, 8 cores",
+            "usd": 7.6
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "c3d-standard-8, 8 vCPU",
+            "usd": 6.73
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "electricity",
+            "providerLabel": "Electricity (~70 W at $0.17/kWh)",
+            "instance": "8-core laptop under load",
+            "usd": 0.889
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "c7a.2xlarge, 8 cores",
+            "usd": 30.41
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "c3d-standard-8, 8 vCPU",
+            "usd": 26.9
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "electricity",
+            "providerLabel": "Electricity (~70 W at $0.17/kWh)",
+            "instance": "8-core laptop under load",
+            "usd": 888.89
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "c7a.2xlarge, 8 cores",
+            "usd": 30411.85
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "c3d-standard-8, 8 vCPU",
+            "usd": 26903.7
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "c7a.32xlarge, 128 cores",
+            "usd": 7.3
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "c3d-standard-360 pro-rated to 128 cores",
+            "usd": 12.91
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "c7a.32xlarge, 128 cores",
+            "usd": 29.2
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "c3d-standard-360 pro-rated to 128 cores",
+            "usd": 51.65
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "c7a.32xlarge, 128 cores",
+            "usd": 29195.38
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "c3d-standard-360 pro-rated to 128 cores",
+            "usd": 51653.78
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "20 x c7a.32xlarge",
+            "usd": 7.3
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "20 x c3d-standard-360 pro-rated to 128 cores",
+            "usd": 12.91
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "20 x c7a.32xlarge",
+            "usd": 29.2
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "20 x c3d-standard-360 pro-rated to 128 cores",
+            "usd": 51.65
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "20 x c7a.32xlarge",
+            "usd": 29195.38
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "20 x c3d-standard-360 pro-rated to 128 cores",
+            "usd": 51653.84
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "p5.48xlarge, 8x H100",
+            "usd": 0.153
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "a3-highgpu-8g, 8x H100",
+            "usd": 0.244
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "p5.48xlarge, 8x H100",
+            "usd": 0.612
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "a3-highgpu-8g, 8x H100",
+            "usd": 0.976
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "p5.48xlarge, 8x H100",
+            "usd": 611.56
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "a3-highgpu-8g, 8x H100",
+            "usd": 975.92
+          }
+        ],
+        "10": [
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "electricity",
+            "providerLabel": "Electricity (~70 W at $0.17/kWh)",
+            "instance": "8-core laptop under load",
+            "usd": 0.278
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "c7a.2xlarge, 8 cores",
+            "usd": 9.5
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "c3d-standard-8, 8 vCPU",
+            "usd": 8.41
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "electricity",
+            "providerLabel": "Electricity (~70 W at $0.17/kWh)",
+            "instance": "8-core laptop under load",
+            "usd": 1.11
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "c7a.2xlarge, 8 cores",
+            "usd": 38.01
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "c3d-standard-8, 8 vCPU",
+            "usd": 33.63
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "electricity",
+            "providerLabel": "Electricity (~70 W at $0.17/kWh)",
+            "instance": "8-core laptop under load",
+            "usd": 1111.11
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "c7a.2xlarge, 8 cores",
+            "usd": 38014.81
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "c3d-standard-8, 8 vCPU",
+            "usd": 33629.63
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "c7a.32xlarge, 128 cores",
+            "usd": 9.12
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "c3d-standard-360 pro-rated to 128 cores",
+            "usd": 16.14
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "c7a.32xlarge, 128 cores",
+            "usd": 36.49
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "c3d-standard-360 pro-rated to 128 cores",
+            "usd": 64.57
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "c7a.32xlarge, 128 cores",
+            "usd": 36494.22
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "c3d-standard-360 pro-rated to 128 cores",
+            "usd": 64567.22
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "20 x c7a.32xlarge",
+            "usd": 9.12
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "20 x c3d-standard-360 pro-rated to 128 cores",
+            "usd": 16.14
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "20 x c7a.32xlarge",
+            "usd": 36.49
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "20 x c3d-standard-360 pro-rated to 128 cores",
+            "usd": 64.57
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "20 x c7a.32xlarge",
+            "usd": 36494.22
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "20 x c3d-standard-360 pro-rated to 128 cores",
+            "usd": 64567.31
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "p5.48xlarge, 8x H100",
+            "usd": 0.191
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "a3-highgpu-8g, 8x H100",
+            "usd": 0.305
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "p5.48xlarge, 8x H100",
+            "usd": 0.764
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "a3-highgpu-8g, 8x H100",
+            "usd": 1.22
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "p5.48xlarge, 8x H100",
+            "usd": 764.44
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "a3-highgpu-8g, 8x H100",
+            "usd": 1219.9
+          }
+        ],
+        "12": [
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "electricity",
+            "providerLabel": "Electricity (~70 W at $0.17/kWh)",
+            "instance": "8-core laptop under load",
+            "usd": 0.333
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "c7a.2xlarge, 8 cores",
+            "usd": 11.4
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "c3d-standard-8, 8 vCPU",
+            "usd": 10.09
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "electricity",
+            "providerLabel": "Electricity (~70 W at $0.17/kWh)",
+            "instance": "8-core laptop under load",
+            "usd": 1.33
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "c7a.2xlarge, 8 cores",
+            "usd": 45.62
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "c3d-standard-8, 8 vCPU",
+            "usd": 40.36
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "electricity",
+            "providerLabel": "Electricity (~70 W at $0.17/kWh)",
+            "instance": "8-core laptop under load",
+            "usd": 1333.33
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "c7a.2xlarge, 8 cores",
+            "usd": 45617.78
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "c3d-standard-8, 8 vCPU",
+            "usd": 40355.56
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "c7a.32xlarge, 128 cores",
+            "usd": 10.95
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "c3d-standard-360 pro-rated to 128 cores",
+            "usd": 19.37
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "c7a.32xlarge, 128 cores",
+            "usd": 43.79
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "c3d-standard-360 pro-rated to 128 cores",
+            "usd": 77.48
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "c7a.32xlarge, 128 cores",
+            "usd": 43793.07
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "c3d-standard-360 pro-rated to 128 cores",
+            "usd": 77480.67
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "20 x c7a.32xlarge",
+            "usd": 10.95
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "20 x c3d-standard-360 pro-rated to 128 cores",
+            "usd": 19.37
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "20 x c7a.32xlarge",
+            "usd": 43.79
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "20 x c3d-standard-360 pro-rated to 128 cores",
+            "usd": 77.48
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "20 x c7a.32xlarge",
+            "usd": 43793.07
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "20 x c3d-standard-360 pro-rated to 128 cores",
+            "usd": 77480.77
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "p5.48xlarge, 8x H100",
+            "usd": 0.229
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "a3-highgpu-8g, 8x H100",
+            "usd": 0.366
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "p5.48xlarge, 8x H100",
+            "usd": 0.917
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "a3-highgpu-8g, 8x H100",
+            "usd": 1.46
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "p5.48xlarge, 8x H100",
+            "usd": 917.33
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "a3-highgpu-8g, 8x H100",
+            "usd": 1463.88
+          }
+        ],
+        "14": [
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "electricity",
+            "providerLabel": "Electricity (~70 W at $0.17/kWh)",
+            "instance": "8-core laptop under load",
+            "usd": 0.389
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "c7a.2xlarge, 8 cores",
+            "usd": 13.31
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "c3d-standard-8, 8 vCPU",
+            "usd": 11.77
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "electricity",
+            "providerLabel": "Electricity (~70 W at $0.17/kWh)",
+            "instance": "8-core laptop under load",
+            "usd": 1.56
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "c7a.2xlarge, 8 cores",
+            "usd": 53.22
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "c3d-standard-8, 8 vCPU",
+            "usd": 47.08
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "electricity",
+            "providerLabel": "Electricity (~70 W at $0.17/kWh)",
+            "instance": "8-core laptop under load",
+            "usd": 1555.56
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "c7a.2xlarge, 8 cores",
+            "usd": 53220.74
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "c3d-standard-8, 8 vCPU",
+            "usd": 47081.48
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "c7a.32xlarge, 128 cores",
+            "usd": 12.77
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "c3d-standard-360 pro-rated to 128 cores",
+            "usd": 22.6
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "c7a.32xlarge, 128 cores",
+            "usd": 51.09
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "c3d-standard-360 pro-rated to 128 cores",
+            "usd": 90.39
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "c7a.32xlarge, 128 cores",
+            "usd": 51091.91
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "c3d-standard-360 pro-rated to 128 cores",
+            "usd": 90394.11
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "20 x c7a.32xlarge",
+            "usd": 12.77
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "20 x c3d-standard-360 pro-rated to 128 cores",
+            "usd": 22.6
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "20 x c7a.32xlarge",
+            "usd": 51.09
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "20 x c3d-standard-360 pro-rated to 128 cores",
+            "usd": 90.39
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "20 x c7a.32xlarge",
+            "usd": 51091.91
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "20 x c3d-standard-360 pro-rated to 128 cores",
+            "usd": 90394.23
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "p5.48xlarge, 8x H100",
+            "usd": 0.268
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "a3-highgpu-8g, 8x H100",
+            "usd": 0.427
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "p5.48xlarge, 8x H100",
+            "usd": 1.07
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "a3-highgpu-8g, 8x H100",
+            "usd": 1.71
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "p5.48xlarge, 8x H100",
+            "usd": 1070.22
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "a3-highgpu-8g, 8x H100",
+            "usd": 1707.85
+          }
+        ],
+        "16": [
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "electricity",
+            "providerLabel": "Electricity (~70 W at $0.17/kWh)",
+            "instance": "8-core laptop under load",
+            "usd": 0.444
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "c7a.2xlarge, 8 cores",
+            "usd": 15.21
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "c3d-standard-8, 8 vCPU",
+            "usd": 13.45
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "electricity",
+            "providerLabel": "Electricity (~70 W at $0.17/kWh)",
+            "instance": "8-core laptop under load",
+            "usd": 1.78
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "c7a.2xlarge, 8 cores",
+            "usd": 60.82
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "c3d-standard-8, 8 vCPU",
+            "usd": 53.81
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "electricity",
+            "providerLabel": "Electricity (~70 W at $0.17/kWh)",
+            "instance": "8-core laptop under load",
+            "usd": 1777.78
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "c7a.2xlarge, 8 cores",
+            "usd": 60823.7
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "c3d-standard-8, 8 vCPU",
+            "usd": 53807.41
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "c7a.32xlarge, 128 cores",
+            "usd": 14.6
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "c3d-standard-360 pro-rated to 128 cores",
+            "usd": 25.83
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "c7a.32xlarge, 128 cores",
+            "usd": 58.39
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "c3d-standard-360 pro-rated to 128 cores",
+            "usd": 103.31
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "c7a.32xlarge, 128 cores",
+            "usd": 58390.76
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "c3d-standard-360 pro-rated to 128 cores",
+            "usd": 103307.56
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "20 x c7a.32xlarge",
+            "usd": 14.6
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "20 x c3d-standard-360 pro-rated to 128 cores",
+            "usd": 25.83
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "20 x c7a.32xlarge",
+            "usd": 58.39
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "20 x c3d-standard-360 pro-rated to 128 cores",
+            "usd": 103.31
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "20 x c7a.32xlarge",
+            "usd": 58390.76
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "20 x c3d-standard-360 pro-rated to 128 cores",
+            "usd": 103307.69
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "p5.48xlarge, 8x H100",
+            "usd": 0.306
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "a3-highgpu-8g, 8x H100",
+            "usd": 0.488
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "p5.48xlarge, 8x H100",
+            "usd": 1.22
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "a3-highgpu-8g, 8x H100",
+            "usd": 1.95
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "p5.48xlarge, 8x H100",
+            "usd": 1223.11
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "a3-highgpu-8g, 8x H100",
+            "usd": 1951.83
+          }
+        ],
+        "18": [
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "electricity",
+            "providerLabel": "Electricity (~70 W at $0.17/kWh)",
+            "instance": "8-core laptop under load",
+            "usd": 0.5
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "c7a.2xlarge, 8 cores",
+            "usd": 17.11
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "c3d-standard-8, 8 vCPU",
+            "usd": 15.13
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "electricity",
+            "providerLabel": "Electricity (~70 W at $0.17/kWh)",
+            "instance": "8-core laptop under load",
+            "usd": 2.0
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "c7a.2xlarge, 8 cores",
+            "usd": 68.43
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "c3d-standard-8, 8 vCPU",
+            "usd": 60.53
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "electricity",
+            "providerLabel": "Electricity (~70 W at $0.17/kWh)",
+            "instance": "8-core laptop under load",
+            "usd": 2000.0
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "c7a.2xlarge, 8 cores",
+            "usd": 68426.67
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "c3d-standard-8, 8 vCPU",
+            "usd": 60533.33
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "c7a.32xlarge, 128 cores",
+            "usd": 16.42
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "c3d-standard-360 pro-rated to 128 cores",
+            "usd": 29.06
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "c7a.32xlarge, 128 cores",
+            "usd": 65.69
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "c3d-standard-360 pro-rated to 128 cores",
+            "usd": 116.22
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "c7a.32xlarge, 128 cores",
+            "usd": 65689.6
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "c3d-standard-360 pro-rated to 128 cores",
+            "usd": 116221.0
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "20 x c7a.32xlarge",
+            "usd": 16.42
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "20 x c3d-standard-360 pro-rated to 128 cores",
+            "usd": 29.06
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "20 x c7a.32xlarge",
+            "usd": 65.69
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "20 x c3d-standard-360 pro-rated to 128 cores",
+            "usd": 116.22
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "20 x c7a.32xlarge",
+            "usd": 65689.6
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "20 x c3d-standard-360 pro-rated to 128 cores",
+            "usd": 116221.15
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "p5.48xlarge, 8x H100",
+            "usd": 0.344
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "a3-highgpu-8g, 8x H100",
+            "usd": 0.549
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "p5.48xlarge, 8x H100",
+            "usd": 1.38
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "a3-highgpu-8g, 8x H100",
+            "usd": 2.2
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "p5.48xlarge, 8x H100",
+            "usd": 1376.0
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "a3-highgpu-8g, 8x H100",
+            "usd": 2195.81
+          }
+        ],
+        "20": [
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "electricity",
+            "providerLabel": "Electricity (~70 W at $0.17/kWh)",
+            "instance": "8-core laptop under load",
+            "usd": 0.556
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "c7a.2xlarge, 8 cores",
+            "usd": 19.01
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "c3d-standard-8, 8 vCPU",
+            "usd": 16.81
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "electricity",
+            "providerLabel": "Electricity (~70 W at $0.17/kWh)",
+            "instance": "8-core laptop under load",
+            "usd": 2.22
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "c7a.2xlarge, 8 cores",
+            "usd": 76.03
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "c3d-standard-8, 8 vCPU",
+            "usd": 67.26
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "electricity",
+            "providerLabel": "Electricity (~70 W at $0.17/kWh)",
+            "instance": "8-core laptop under load",
+            "usd": 2222.22
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "c7a.2xlarge, 8 cores",
+            "usd": 76029.63
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "laptop",
+            "platform": "Laptop (8 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "c3d-standard-8, 8 vCPU",
+            "usd": 67259.26
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "c7a.32xlarge, 128 cores",
+            "usd": 18.25
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "c3d-standard-360 pro-rated to 128 cores",
+            "usd": 32.28
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "c7a.32xlarge, 128 cores",
+            "usd": 72.99
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "c3d-standard-360 pro-rated to 128 cores",
+            "usd": 129.13
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "c7a.32xlarge, 128 cores",
+            "usd": 72988.44
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "c3d-standard-360 pro-rated to 128 cores",
+            "usd": 129134.44
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "20 x c7a.32xlarge",
+            "usd": 18.25
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "20 x c3d-standard-360 pro-rated to 128 cores",
+            "usd": 32.28
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "20 x c7a.32xlarge",
+            "usd": 72.99
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "20 x c3d-standard-360 pro-rated to 128 cores",
+            "usd": 129.13
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "20 x c7a.32xlarge",
+            "usd": 72988.44
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "20 x c3d-standard-360 pro-rated to 128 cores",
+            "usd": 129134.61
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "p5.48xlarge, 8x H100",
+            "usd": 0.382
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "a3-highgpu-8g, 8x H100",
+            "usd": 0.61
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "p5.48xlarge, 8x H100",
+            "usd": 1.53
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "a3-highgpu-8g, 8x H100",
+            "usd": 2.44
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "provider": "aws",
+            "providerLabel": "AWS (us-east-1, on-demand)",
+            "instance": "p5.48xlarge, 8x H100",
+            "usd": 1528.89
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "provider": "gcp",
+            "providerLabel": "Google Cloud (us-central1, on-demand)",
+            "instance": "a3-highgpu-8g, 8x H100",
+            "usd": 2439.79
+          }
+        ]
+      }
+    },
+    "allocationCurve": {
+      "byControl": "variantCount",
+      "values": {
+        "2": [
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "su": 35.56
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "su": 142.22
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "su": 142222.22
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "su": 35.56
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "su": 142.22
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "su": 142222.22
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "su": 0.0111
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "su": 0.0444
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "su": 44.44
+          }
+        ],
+        "4": [
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "su": 71.11
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "su": 284.44
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "su": 284444.44
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "su": 71.11
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "su": 284.44
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "su": 284444.44
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "su": 0.0222
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "su": 0.0889
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "su": 88.89
+          }
+        ],
+        "6": [
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "su": 106.67
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "su": 426.67
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "su": 426666.67
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "su": 106.67
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "su": 426.67
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "su": 426666.67
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "su": 0.0333
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "su": 0.133
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "su": 133.33
+          }
+        ],
+        "8": [
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "su": 142.22
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "su": 568.89
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "su": 568888.89
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "su": 142.22
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "su": 568.89
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "su": 568888.89
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "su": 0.0444
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "su": 0.178
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "su": 177.78
+          }
+        ],
+        "10": [
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "su": 177.78
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "su": 711.11
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "su": 711111.11
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "su": 177.78
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "su": 711.11
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "su": 711111.11
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "su": 0.0556
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "su": 0.222
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "su": 222.22
+          }
+        ],
+        "12": [
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "su": 213.33
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "su": 853.33
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "su": 853333.33
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "su": 213.33
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "su": 853.33
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "su": 853333.33
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "su": 0.0667
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "su": 0.267
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "su": 266.67
+          }
+        ],
+        "14": [
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "su": 248.89
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "su": 995.56
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "su": 995555.56
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "su": 248.89
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "su": 995.56
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "su": 995555.56
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "su": 0.0778
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "su": 0.311
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "su": 311.11
+          }
+        ],
+        "16": [
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "su": 284.44
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "su": 1137.78
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "su": 1137777.78
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "su": 284.44
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "su": 1137.78
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "su": 1137777.78
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "su": 0.0889
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "su": 0.356
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "su": 355.56
+          }
+        ],
+        "18": [
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "su": 320.0
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "su": 1280.0
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "su": 1280000.0
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "su": 320.0
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "su": 1280.0
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "su": 1280000.0
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "su": 0.1
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "su": 0.4
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "su": 400.0
+          }
+        ],
+        "20": [
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "su": 355.56
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "su": 1422.22
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "cpu_single",
+            "platform": "Bridges-2 RM node (128 cores)",
+            "su": 1422222.22
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "su": 355.56
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "su": 1422.22
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "cpu_cluster",
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "su": 1422222.22
+          },
+          {
+            "label": "Standard GWAS scan",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "su": 0.111
+          },
+          {
+            "label": "Local ancestry-aware scan",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "su": 0.444
+          },
+          {
+            "label": "Permutation scan (interaction, 1,000 permutations)",
+            "platformId": "gpu",
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "su": 444.44
+          }
+        ]
+      }
+    },
+    "allocationReference": [
+      {
+        "label": "ACCESS Explore allocation",
+        "credits": 400000,
+        "note": "400,000 ACCESS credits; a credit is set at about one core-hour"
+      }
+    ],
+    "feasibility": {
+      "byControl": "variantCount",
+      "values": {
+        "2": [
+          {
+            "platform": "Laptop (8 cores)",
+            "platformId": "laptop",
+            "analysis": "Standard GWAS scan",
+            "hours": 4.63,
+            "feasible": true
+          },
+          {
+            "platform": "Laptop (8 cores)",
+            "platformId": "laptop",
+            "analysis": "Local ancestry-aware scan",
+            "hours": 18.52,
+            "feasible": true
+          },
+          {
+            "platform": "Laptop (8 cores)",
+            "platformId": "laptop",
+            "analysis": "Permutation scan (interaction, 1,000 permutations)",
+            "hours": 18518.52,
+            "feasible": false
+          },
+          {
+            "platform": "Bridges-2 RM node (128 cores)",
+            "platformId": "cpu_single",
+            "analysis": "Standard GWAS scan",
+            "hours": 0.278,
+            "feasible": true
+          },
+          {
+            "platform": "Bridges-2 RM node (128 cores)",
+            "platformId": "cpu_single",
+            "analysis": "Local ancestry-aware scan",
+            "hours": 1.11,
+            "feasible": true
+          },
+          {
+            "platform": "Bridges-2 RM node (128 cores)",
+            "platformId": "cpu_single",
+            "analysis": "Permutation scan (interaction, 1,000 permutations)",
+            "hours": 1111.11,
+            "feasible": false
+          },
+          {
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "platformId": "cpu_cluster",
+            "analysis": "Standard GWAS scan",
+            "hours": 0.0139,
+            "feasible": true
+          },
+          {
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "platformId": "cpu_cluster",
+            "analysis": "Local ancestry-aware scan",
+            "hours": 0.0556,
+            "feasible": true
+          },
+          {
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "platformId": "cpu_cluster",
+            "analysis": "Permutation scan (interaction, 1,000 permutations)",
+            "hours": 55.56,
+            "feasible": true
+          },
+          {
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "platformId": "gpu",
+            "analysis": "Standard GWAS scan",
+            "hours": 0.000694,
+            "feasible": true
+          },
+          {
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "platformId": "gpu",
+            "analysis": "Local ancestry-aware scan",
+            "hours": 0.00278,
+            "feasible": true
+          },
+          {
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "platformId": "gpu",
+            "analysis": "Permutation scan (interaction, 1,000 permutations)",
+            "hours": 2.78,
+            "feasible": true
+          }
+        ],
+        "4": [
+          {
+            "platform": "Laptop (8 cores)",
+            "platformId": "laptop",
+            "analysis": "Standard GWAS scan",
+            "hours": 9.26,
+            "feasible": true
+          },
+          {
+            "platform": "Laptop (8 cores)",
+            "platformId": "laptop",
+            "analysis": "Local ancestry-aware scan",
+            "hours": 37.04,
+            "feasible": true
+          },
+          {
+            "platform": "Laptop (8 cores)",
+            "platformId": "laptop",
+            "analysis": "Permutation scan (interaction, 1,000 permutations)",
+            "hours": 37037.04,
+            "feasible": false
+          },
+          {
+            "platform": "Bridges-2 RM node (128 cores)",
+            "platformId": "cpu_single",
+            "analysis": "Standard GWAS scan",
+            "hours": 0.556,
+            "feasible": true
+          },
+          {
+            "platform": "Bridges-2 RM node (128 cores)",
+            "platformId": "cpu_single",
+            "analysis": "Local ancestry-aware scan",
+            "hours": 2.22,
+            "feasible": true
+          },
+          {
+            "platform": "Bridges-2 RM node (128 cores)",
+            "platformId": "cpu_single",
+            "analysis": "Permutation scan (interaction, 1,000 permutations)",
+            "hours": 2222.22,
+            "feasible": false
+          },
+          {
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "platformId": "cpu_cluster",
+            "analysis": "Standard GWAS scan",
+            "hours": 0.0278,
+            "feasible": true
+          },
+          {
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "platformId": "cpu_cluster",
+            "analysis": "Local ancestry-aware scan",
+            "hours": 0.111,
+            "feasible": true
+          },
+          {
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "platformId": "cpu_cluster",
+            "analysis": "Permutation scan (interaction, 1,000 permutations)",
+            "hours": 111.11,
+            "feasible": true
+          },
+          {
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "platformId": "gpu",
+            "analysis": "Standard GWAS scan",
+            "hours": 0.00139,
+            "feasible": true
+          },
+          {
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "platformId": "gpu",
+            "analysis": "Local ancestry-aware scan",
+            "hours": 0.00556,
+            "feasible": true
+          },
+          {
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "platformId": "gpu",
+            "analysis": "Permutation scan (interaction, 1,000 permutations)",
+            "hours": 5.56,
+            "feasible": true
+          }
+        ],
+        "6": [
+          {
+            "platform": "Laptop (8 cores)",
+            "platformId": "laptop",
+            "analysis": "Standard GWAS scan",
+            "hours": 13.89,
+            "feasible": true
+          },
+          {
+            "platform": "Laptop (8 cores)",
+            "platformId": "laptop",
+            "analysis": "Local ancestry-aware scan",
+            "hours": 55.56,
+            "feasible": true
+          },
+          {
+            "platform": "Laptop (8 cores)",
+            "platformId": "laptop",
+            "analysis": "Permutation scan (interaction, 1,000 permutations)",
+            "hours": 55555.56,
+            "feasible": false
+          },
+          {
+            "platform": "Bridges-2 RM node (128 cores)",
+            "platformId": "cpu_single",
+            "analysis": "Standard GWAS scan",
+            "hours": 0.833,
+            "feasible": true
+          },
+          {
+            "platform": "Bridges-2 RM node (128 cores)",
+            "platformId": "cpu_single",
+            "analysis": "Local ancestry-aware scan",
+            "hours": 3.33,
+            "feasible": true
+          },
+          {
+            "platform": "Bridges-2 RM node (128 cores)",
+            "platformId": "cpu_single",
+            "analysis": "Permutation scan (interaction, 1,000 permutations)",
+            "hours": 3333.33,
+            "feasible": false
+          },
+          {
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "platformId": "cpu_cluster",
+            "analysis": "Standard GWAS scan",
+            "hours": 0.0417,
+            "feasible": true
+          },
+          {
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "platformId": "cpu_cluster",
+            "analysis": "Local ancestry-aware scan",
+            "hours": 0.167,
+            "feasible": true
+          },
+          {
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "platformId": "cpu_cluster",
+            "analysis": "Permutation scan (interaction, 1,000 permutations)",
+            "hours": 166.67,
+            "feasible": true
+          },
+          {
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "platformId": "gpu",
+            "analysis": "Standard GWAS scan",
+            "hours": 0.00208,
+            "feasible": true
+          },
+          {
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "platformId": "gpu",
+            "analysis": "Local ancestry-aware scan",
+            "hours": 0.00833,
+            "feasible": true
+          },
+          {
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "platformId": "gpu",
+            "analysis": "Permutation scan (interaction, 1,000 permutations)",
+            "hours": 8.33,
+            "feasible": true
+          }
+        ],
+        "8": [
+          {
+            "platform": "Laptop (8 cores)",
+            "platformId": "laptop",
+            "analysis": "Standard GWAS scan",
+            "hours": 18.52,
+            "feasible": true
+          },
+          {
+            "platform": "Laptop (8 cores)",
+            "platformId": "laptop",
+            "analysis": "Local ancestry-aware scan",
+            "hours": 74.07,
+            "feasible": true
+          },
+          {
+            "platform": "Laptop (8 cores)",
+            "platformId": "laptop",
+            "analysis": "Permutation scan (interaction, 1,000 permutations)",
+            "hours": 74074.07,
+            "feasible": false
+          },
+          {
+            "platform": "Bridges-2 RM node (128 cores)",
+            "platformId": "cpu_single",
+            "analysis": "Standard GWAS scan",
+            "hours": 1.11,
+            "feasible": true
+          },
+          {
+            "platform": "Bridges-2 RM node (128 cores)",
+            "platformId": "cpu_single",
+            "analysis": "Local ancestry-aware scan",
+            "hours": 4.44,
+            "feasible": true
+          },
+          {
+            "platform": "Bridges-2 RM node (128 cores)",
+            "platformId": "cpu_single",
+            "analysis": "Permutation scan (interaction, 1,000 permutations)",
+            "hours": 4444.44,
+            "feasible": false
+          },
+          {
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "platformId": "cpu_cluster",
+            "analysis": "Standard GWAS scan",
+            "hours": 0.0556,
+            "feasible": true
+          },
+          {
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "platformId": "cpu_cluster",
+            "analysis": "Local ancestry-aware scan",
+            "hours": 0.222,
+            "feasible": true
+          },
+          {
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "platformId": "cpu_cluster",
+            "analysis": "Permutation scan (interaction, 1,000 permutations)",
+            "hours": 222.22,
+            "feasible": false
+          },
+          {
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "platformId": "gpu",
+            "analysis": "Standard GWAS scan",
+            "hours": 0.00278,
+            "feasible": true
+          },
+          {
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "platformId": "gpu",
+            "analysis": "Local ancestry-aware scan",
+            "hours": 0.0111,
+            "feasible": true
+          },
+          {
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "platformId": "gpu",
+            "analysis": "Permutation scan (interaction, 1,000 permutations)",
+            "hours": 11.11,
+            "feasible": true
+          }
+        ],
+        "10": [
+          {
+            "platform": "Laptop (8 cores)",
+            "platformId": "laptop",
+            "analysis": "Standard GWAS scan",
+            "hours": 23.15,
+            "feasible": true
+          },
+          {
+            "platform": "Laptop (8 cores)",
+            "platformId": "laptop",
+            "analysis": "Local ancestry-aware scan",
+            "hours": 92.59,
+            "feasible": true
+          },
+          {
+            "platform": "Laptop (8 cores)",
+            "platformId": "laptop",
+            "analysis": "Permutation scan (interaction, 1,000 permutations)",
+            "hours": 92592.59,
+            "feasible": false
+          },
+          {
+            "platform": "Bridges-2 RM node (128 cores)",
+            "platformId": "cpu_single",
+            "analysis": "Standard GWAS scan",
+            "hours": 1.39,
+            "feasible": true
+          },
+          {
+            "platform": "Bridges-2 RM node (128 cores)",
+            "platformId": "cpu_single",
+            "analysis": "Local ancestry-aware scan",
+            "hours": 5.56,
+            "feasible": true
+          },
+          {
+            "platform": "Bridges-2 RM node (128 cores)",
+            "platformId": "cpu_single",
+            "analysis": "Permutation scan (interaction, 1,000 permutations)",
+            "hours": 5555.56,
+            "feasible": false
+          },
+          {
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "platformId": "cpu_cluster",
+            "analysis": "Standard GWAS scan",
+            "hours": 0.0694,
+            "feasible": true
+          },
+          {
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "platformId": "cpu_cluster",
+            "analysis": "Local ancestry-aware scan",
+            "hours": 0.278,
+            "feasible": true
+          },
+          {
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "platformId": "cpu_cluster",
+            "analysis": "Permutation scan (interaction, 1,000 permutations)",
+            "hours": 277.78,
+            "feasible": false
+          },
+          {
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "platformId": "gpu",
+            "analysis": "Standard GWAS scan",
+            "hours": 0.00347,
+            "feasible": true
+          },
+          {
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "platformId": "gpu",
+            "analysis": "Local ancestry-aware scan",
+            "hours": 0.0139,
+            "feasible": true
+          },
+          {
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "platformId": "gpu",
+            "analysis": "Permutation scan (interaction, 1,000 permutations)",
+            "hours": 13.89,
+            "feasible": true
+          }
+        ],
+        "12": [
+          {
+            "platform": "Laptop (8 cores)",
+            "platformId": "laptop",
+            "analysis": "Standard GWAS scan",
+            "hours": 27.78,
+            "feasible": true
+          },
+          {
+            "platform": "Laptop (8 cores)",
+            "platformId": "laptop",
+            "analysis": "Local ancestry-aware scan",
+            "hours": 111.11,
+            "feasible": true
+          },
+          {
+            "platform": "Laptop (8 cores)",
+            "platformId": "laptop",
+            "analysis": "Permutation scan (interaction, 1,000 permutations)",
+            "hours": 111111.11,
+            "feasible": false
+          },
+          {
+            "platform": "Bridges-2 RM node (128 cores)",
+            "platformId": "cpu_single",
+            "analysis": "Standard GWAS scan",
+            "hours": 1.67,
+            "feasible": true
+          },
+          {
+            "platform": "Bridges-2 RM node (128 cores)",
+            "platformId": "cpu_single",
+            "analysis": "Local ancestry-aware scan",
+            "hours": 6.67,
+            "feasible": true
+          },
+          {
+            "platform": "Bridges-2 RM node (128 cores)",
+            "platformId": "cpu_single",
+            "analysis": "Permutation scan (interaction, 1,000 permutations)",
+            "hours": 6666.67,
+            "feasible": false
+          },
+          {
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "platformId": "cpu_cluster",
+            "analysis": "Standard GWAS scan",
+            "hours": 0.0833,
+            "feasible": true
+          },
+          {
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "platformId": "cpu_cluster",
+            "analysis": "Local ancestry-aware scan",
+            "hours": 0.333,
+            "feasible": true
+          },
+          {
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "platformId": "cpu_cluster",
+            "analysis": "Permutation scan (interaction, 1,000 permutations)",
+            "hours": 333.33,
+            "feasible": false
+          },
+          {
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "platformId": "gpu",
+            "analysis": "Standard GWAS scan",
+            "hours": 0.00417,
+            "feasible": true
+          },
+          {
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "platformId": "gpu",
+            "analysis": "Local ancestry-aware scan",
+            "hours": 0.0167,
+            "feasible": true
+          },
+          {
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "platformId": "gpu",
+            "analysis": "Permutation scan (interaction, 1,000 permutations)",
+            "hours": 16.67,
+            "feasible": true
+          }
+        ],
+        "14": [
+          {
+            "platform": "Laptop (8 cores)",
+            "platformId": "laptop",
+            "analysis": "Standard GWAS scan",
+            "hours": 32.41,
+            "feasible": true
+          },
+          {
+            "platform": "Laptop (8 cores)",
+            "platformId": "laptop",
+            "analysis": "Local ancestry-aware scan",
+            "hours": 129.63,
+            "feasible": true
+          },
+          {
+            "platform": "Laptop (8 cores)",
+            "platformId": "laptop",
+            "analysis": "Permutation scan (interaction, 1,000 permutations)",
+            "hours": 129629.63,
+            "feasible": false
+          },
+          {
+            "platform": "Bridges-2 RM node (128 cores)",
+            "platformId": "cpu_single",
+            "analysis": "Standard GWAS scan",
+            "hours": 1.94,
+            "feasible": true
+          },
+          {
+            "platform": "Bridges-2 RM node (128 cores)",
+            "platformId": "cpu_single",
+            "analysis": "Local ancestry-aware scan",
+            "hours": 7.78,
+            "feasible": true
+          },
+          {
+            "platform": "Bridges-2 RM node (128 cores)",
+            "platformId": "cpu_single",
+            "analysis": "Permutation scan (interaction, 1,000 permutations)",
+            "hours": 7777.78,
+            "feasible": false
+          },
+          {
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "platformId": "cpu_cluster",
+            "analysis": "Standard GWAS scan",
+            "hours": 0.0972,
+            "feasible": true
+          },
+          {
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "platformId": "cpu_cluster",
+            "analysis": "Local ancestry-aware scan",
+            "hours": 0.389,
+            "feasible": true
+          },
+          {
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "platformId": "cpu_cluster",
+            "analysis": "Permutation scan (interaction, 1,000 permutations)",
+            "hours": 388.89,
+            "feasible": false
+          },
+          {
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "platformId": "gpu",
+            "analysis": "Standard GWAS scan",
+            "hours": 0.00486,
+            "feasible": true
+          },
+          {
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "platformId": "gpu",
+            "analysis": "Local ancestry-aware scan",
+            "hours": 0.0194,
+            "feasible": true
+          },
+          {
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "platformId": "gpu",
+            "analysis": "Permutation scan (interaction, 1,000 permutations)",
+            "hours": 19.44,
+            "feasible": true
+          }
+        ],
+        "16": [
+          {
+            "platform": "Laptop (8 cores)",
+            "platformId": "laptop",
+            "analysis": "Standard GWAS scan",
+            "hours": 37.04,
+            "feasible": true
+          },
+          {
+            "platform": "Laptop (8 cores)",
+            "platformId": "laptop",
+            "analysis": "Local ancestry-aware scan",
+            "hours": 148.15,
+            "feasible": true
+          },
+          {
+            "platform": "Laptop (8 cores)",
+            "platformId": "laptop",
+            "analysis": "Permutation scan (interaction, 1,000 permutations)",
+            "hours": 148148.15,
+            "feasible": false
+          },
+          {
+            "platform": "Bridges-2 RM node (128 cores)",
+            "platformId": "cpu_single",
+            "analysis": "Standard GWAS scan",
+            "hours": 2.22,
+            "feasible": true
+          },
+          {
+            "platform": "Bridges-2 RM node (128 cores)",
+            "platformId": "cpu_single",
+            "analysis": "Local ancestry-aware scan",
+            "hours": 8.89,
+            "feasible": true
+          },
+          {
+            "platform": "Bridges-2 RM node (128 cores)",
+            "platformId": "cpu_single",
+            "analysis": "Permutation scan (interaction, 1,000 permutations)",
+            "hours": 8888.89,
+            "feasible": false
+          },
+          {
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "platformId": "cpu_cluster",
+            "analysis": "Standard GWAS scan",
+            "hours": 0.111,
+            "feasible": true
+          },
+          {
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "platformId": "cpu_cluster",
+            "analysis": "Local ancestry-aware scan",
+            "hours": 0.444,
+            "feasible": true
+          },
+          {
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "platformId": "cpu_cluster",
+            "analysis": "Permutation scan (interaction, 1,000 permutations)",
+            "hours": 444.44,
+            "feasible": false
+          },
+          {
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "platformId": "gpu",
+            "analysis": "Standard GWAS scan",
+            "hours": 0.00556,
+            "feasible": true
+          },
+          {
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "platformId": "gpu",
+            "analysis": "Local ancestry-aware scan",
+            "hours": 0.0222,
+            "feasible": true
+          },
+          {
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "platformId": "gpu",
+            "analysis": "Permutation scan (interaction, 1,000 permutations)",
+            "hours": 22.22,
+            "feasible": true
+          }
+        ],
+        "18": [
+          {
+            "platform": "Laptop (8 cores)",
+            "platformId": "laptop",
+            "analysis": "Standard GWAS scan",
+            "hours": 41.67,
+            "feasible": true
+          },
+          {
+            "platform": "Laptop (8 cores)",
+            "platformId": "laptop",
+            "analysis": "Local ancestry-aware scan",
+            "hours": 166.67,
+            "feasible": true
+          },
+          {
+            "platform": "Laptop (8 cores)",
+            "platformId": "laptop",
+            "analysis": "Permutation scan (interaction, 1,000 permutations)",
+            "hours": 166666.67,
+            "feasible": false
+          },
+          {
+            "platform": "Bridges-2 RM node (128 cores)",
+            "platformId": "cpu_single",
+            "analysis": "Standard GWAS scan",
+            "hours": 2.5,
+            "feasible": true
+          },
+          {
+            "platform": "Bridges-2 RM node (128 cores)",
+            "platformId": "cpu_single",
+            "analysis": "Local ancestry-aware scan",
+            "hours": 10.0,
+            "feasible": true
+          },
+          {
+            "platform": "Bridges-2 RM node (128 cores)",
+            "platformId": "cpu_single",
+            "analysis": "Permutation scan (interaction, 1,000 permutations)",
+            "hours": 10000.0,
+            "feasible": false
+          },
+          {
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "platformId": "cpu_cluster",
+            "analysis": "Standard GWAS scan",
+            "hours": 0.125,
+            "feasible": true
+          },
+          {
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "platformId": "cpu_cluster",
+            "analysis": "Local ancestry-aware scan",
+            "hours": 0.5,
+            "feasible": true
+          },
+          {
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "platformId": "cpu_cluster",
+            "analysis": "Permutation scan (interaction, 1,000 permutations)",
+            "hours": 500.0,
+            "feasible": false
+          },
+          {
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "platformId": "gpu",
+            "analysis": "Standard GWAS scan",
+            "hours": 0.00625,
+            "feasible": true
+          },
+          {
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "platformId": "gpu",
+            "analysis": "Local ancestry-aware scan",
+            "hours": 0.025,
+            "feasible": true
+          },
+          {
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "platformId": "gpu",
+            "analysis": "Permutation scan (interaction, 1,000 permutations)",
+            "hours": 25.0,
+            "feasible": true
+          }
+        ],
+        "20": [
+          {
+            "platform": "Laptop (8 cores)",
+            "platformId": "laptop",
+            "analysis": "Standard GWAS scan",
+            "hours": 46.3,
+            "feasible": true
+          },
+          {
+            "platform": "Laptop (8 cores)",
+            "platformId": "laptop",
+            "analysis": "Local ancestry-aware scan",
+            "hours": 185.19,
+            "feasible": false
+          },
+          {
+            "platform": "Laptop (8 cores)",
+            "platformId": "laptop",
+            "analysis": "Permutation scan (interaction, 1,000 permutations)",
+            "hours": 185185.19,
+            "feasible": false
+          },
+          {
+            "platform": "Bridges-2 RM node (128 cores)",
+            "platformId": "cpu_single",
+            "analysis": "Standard GWAS scan",
+            "hours": 2.78,
+            "feasible": true
+          },
+          {
+            "platform": "Bridges-2 RM node (128 cores)",
+            "platformId": "cpu_single",
+            "analysis": "Local ancestry-aware scan",
+            "hours": 11.11,
+            "feasible": true
+          },
+          {
+            "platform": "Bridges-2 RM node (128 cores)",
+            "platformId": "cpu_single",
+            "analysis": "Permutation scan (interaction, 1,000 permutations)",
+            "hours": 11111.11,
+            "feasible": false
+          },
+          {
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "platformId": "cpu_cluster",
+            "analysis": "Standard GWAS scan",
+            "hours": 0.139,
+            "feasible": true
+          },
+          {
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "platformId": "cpu_cluster",
+            "analysis": "Local ancestry-aware scan",
+            "hours": 0.556,
+            "feasible": true
+          },
+          {
+            "platform": "Bridges-2 RM, 20 nodes (2,560 cores)",
+            "platformId": "cpu_cluster",
+            "analysis": "Permutation scan (interaction, 1,000 permutations)",
+            "hours": 555.56,
+            "feasible": false
+          },
+          {
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "platformId": "gpu",
+            "analysis": "Standard GWAS scan",
+            "hours": 0.00694,
+            "feasible": true
+          },
+          {
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "platformId": "gpu",
+            "analysis": "Local ancestry-aware scan",
+            "hours": 0.0278,
+            "feasible": true
+          },
+          {
+            "platform": "Bridges-2 GPU node (8x H100-80GB)",
+            "platformId": "gpu",
+            "analysis": "Permutation scan (interaction, 1,000 permutations)",
+            "hours": 27.78,
+            "feasible": true
+          }
+        ]
+      }
+    },
+    "discussionPrompts": [
+      "Which analyses in your own pipeline would move from infeasible to routine?",
+      "How should a grant budget reflect the cost of ancestry-aware analysis?"
+    ]
+  },
+  "provenance": {
+    "generator": "analysis/generate_scenarios.py",
+    "generatorVersion": "1.1.0",
+    "seed": 20260721,
+    "alpha": 5e-08,
+    "realInputs": {
+      "alleleFrequencies": [],
+      "ancestryDistribution": "All of Us Research Program, genomic data release v7 (~245,000 short-read whole genomes); ancestry proportions rounded to whole percent."
+    },
+    "syntheticInputs": [
+      "Throughput figures (variant-sample operations per second) are order-of-magnitude illustrations of laptop versus Bridges-2 CPU versus Bridges-2 GPU association testing, not benchmarks of a specific software package.",
+      "Cloud prices are AWS and Google Cloud on-demand list prices quoted on 2026-10-14 for the closest instance to each Bridges-2 node class (see the module's 'Where the prices come from' panel); the laptop's hourly cost is electricity.",
+      "Work multipliers per scan (1x, 4x, 4,000x) are illustrative; the 4,000x permutation scan is the ancestry-interaction model under 1,000 permutations."
+    ],
+    "assumptions": [
+      "Runtime scales as variants x 250,000 samples x model-family multiplier.",
+      "Bridges-2 service units: 1 SU per core-hour on Regular Memory nodes (128 cores), 2 SU per GPU-hour on H100 nodes (8 GPUs); Bridges-2 is allocated through NSF ACCESS at no cost for research and education and publishes no dollar rate. The ACCESS Explore allocation (400,000 credits) is drawn at one credit per SU, ACCESS's stated approximation of a credit as one core-hour.",
+      "A one-week (168 hour) turnaround is the bar for an analysis to count as practical for iterative work.",
+      "Genome-wide significance is taken as alpha = 5e-08."
+    ],
+    "derived": "Standard errors, p-values, power, meta-analysis summaries, and heterogeneity statistics are computed from the inputs above by analysis/genetics.py; none are hand-entered."
+  }
+}
